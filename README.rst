@@ -4,7 +4,7 @@ LI3DS API
 Api for accessing metadata of a li3ds datastore.
 
 1. create your virtualenv
-2. Install what you need :
+2. Install dependencies:
 
   - dev environnement :
 
