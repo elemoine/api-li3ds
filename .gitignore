@@ -1,3 +1,7 @@
+# remove config files
+conf/lids_api.yml
+conf/lids_api.uwsgi.yml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
