@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from itertools import chain
+
 from psycopg2 import connect
 from psycopg2.extras import NamedTupleCursor
 
@@ -17,6 +19,8 @@ class Session():
         """
         cur = cls.db.cursor()
         cur.execute(query, parameters)
+        if not cur.rowcount:
+            return None
         for row in cur:
             yield row
 
@@ -28,6 +32,13 @@ class Session():
             line._asdict()
             for line in cls.query(query, parameters=parameters)
         ]
+
+    @classmethod
+    def query_aslist(cls, query, parameters=None):
+        """Iterates over results and returns values in a flat list
+        (usefull if one column only)
+        """
+        return list(chain(*cls.query(query, parameters=parameters)))
 
     @classmethod
     def init_app(cls, app):
