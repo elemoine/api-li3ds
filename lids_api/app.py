@@ -95,6 +95,7 @@ class Transfos(Resource):
 
 image_model = api.model('Image', {
     'id': fields.Integer,
+    'filename': fields.String,
     'exif': fields.Raw
 })
 
