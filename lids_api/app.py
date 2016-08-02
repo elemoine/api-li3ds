@@ -182,7 +182,8 @@ class SensorsSession(Resource):
                     min(ref_list) as ref_list,
                     jsonb_agg(jsonb_build_object(tt.func_name,t.parameters))
                         || jsonb_build_object('id', s.id)
-                        || jsonb_build_object('name', s.name)
+                        || jsonb_build_object('short_name', s.short_name)
+                        || jsonb_build_object('model', s.model)
                         || jsonb_build_object('size_x', s.specifications->'size_x')
                         || jsonb_build_object('size_y', s.specifications->'size_y') as json
                 from ref
