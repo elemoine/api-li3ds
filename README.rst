@@ -29,7 +29,6 @@ Api for accessing metadata of a li3ds datastore.
 
 5. (dev) Go to https://localhost:5000 and start to play with the API
 
----
 
-.. image:: https://raw.githubusercontent.com/LI3DS/lids-api/screen-api.png
+.. image:: https://raw.githubusercontent.com/LI3DS/lids-api/master/screen-api.png
     :align: center
