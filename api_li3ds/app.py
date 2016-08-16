@@ -16,7 +16,7 @@ class Projects(Resource):
 
     def get(self):
         """List projects"""
-        return Session.query_asdict("select * from pglids.project")
+        return Session.query_asdict("select * from li3ds.project")
 
 session_model = api.model('Session Model', {
     'id': fields.Integer,
@@ -32,7 +32,7 @@ class Sessions(Resource):
     @api.marshal_with(session_model)
     def get(self):
         """List sessions"""
-        return Session.query_asdict("select * from pglids.session")
+        return Session.query_asdict("select * from li3ds.session")
 
 
 @api.route('/platforms')
@@ -40,7 +40,7 @@ class Platforms(Resource):
 
     def get(self):
         """List platforms"""
-        return Session.query_asdict("select * from pglids.platform")
+        return Session.query_asdict("select * from li3ds.platform")
 
 
 @api.route('/sensor_types')
@@ -49,8 +49,8 @@ class Sensor_types(Resource):
     def get(self):
         """Sensor type list"""
         return Session.query_aslist(
-            """select unnest(enum_range(enum_first(null::pglids.sensor_type),
-            null::pglids.sensor_type))"""
+            """select unnest(enum_range(enum_first(null::li3ds.sensor_type),
+            null::li3ds.sensor_type))"""
         )
 
 
@@ -66,10 +66,10 @@ class Sensors(Resource):
         ]
         if stype:
             return Session.query_asdict(
-                "select * from pglids.sensor "
+                "select * from li3ds.sensor "
                 "where type::text = any(%s)", (stype,))
         else:
-            return Session.query_asdict("select * from pglids.sensor")
+            return Session.query_asdict("select * from li3ds.sensor")
 
 
 @api.route('/referentials')
@@ -77,7 +77,7 @@ class Referentials(Resource):
 
     def get(self):
         """List referentials"""
-        return Session.query_asdict("select * from pglids.referential")
+        return Session.query_asdict("select * from li3ds.referential")
 
 transfo_model = api.model('Transfo Model', {
     'id': fields.Integer,
@@ -98,7 +98,7 @@ class Transfos(Resource):
     @api.marshal_with(transfo_model)
     def get(self):
         """List transformations between referentials"""
-        return Session.query_asdict("select * from pglids.transfo")
+        return Session.query_asdict("select * from li3ds.transfo")
 
 
 image_model = api.model('Image', {
@@ -116,8 +116,8 @@ class Images(Resource):
     def get(self, session_id):
         """List all images in given session"""
         res = Session.query_asdict(
-            'select p.name, s.id from pglids.session s '
-            'join pglids.project p on s.project = p.id '
+            'select p.name, s.id from li3ds.session s '
+            'join li3ds.project p on s.project = p.id '
             'where s.id = %s',
             (session_id, )
         )
@@ -128,7 +128,7 @@ class Images(Resource):
 
         return Session.query_asdict(
             'select i.* from %s.image i '
-            'join pglids.datasource d on d.session = %s and d.id = i.datasource',
+            'join li3ds.datasource d on d.session = %s and d.id = i.datasource',
             (AsIs(project), session_id)
         )
 
@@ -140,7 +140,7 @@ class SensorsSession(Resource):
     def get(self, session_id):
         """List all camera calibrations for a given session"""
         res = Session.query_asdict(
-            'select id from pglids.session where id = %s',
+            'select id from li3ds.session where id = %s',
             (session_id, )
         )
         if not res:
@@ -158,9 +158,9 @@ class SensorsSession(Resource):
                     , array[rp.id] as ref_list
                     , rp.sensor
                     , '{}'::int[] as transfo_list
-                from pglids.session s
-                join pglids.platform p on s.platform = p.id
-                join pglids.referential rp on rp.platform = p.id
+                from li3ds.session s
+                join li3ds.platform p on s.platform = p.id
+                join li3ds.referential rp on rp.platform = p.id
                 where s.id = %s -- session id
             union
                 -- get all referentials linked by a transformation
@@ -172,9 +172,9 @@ class SensorsSession(Resource):
                     transfo_list || t.id
                 from ref
                 -- join on direct and reverse transformations
-                join pglids.transfo t on (t.source = ref.id or t.target = ref.id)
+                join li3ds.transfo t on (t.source = ref.id or t.target = ref.id)
                 -- target referential
-                join pglids.referential r
+                join li3ds.referential r
                     on (r.id = t.target or r.id = t.source)
                     and not ARRAY[r.id] <@ ref_list -- no cycle
             ), last as (
@@ -187,15 +187,15 @@ class SensorsSession(Resource):
                         || jsonb_build_object('size_x', s.specifications->'size_x')
                         || jsonb_build_object('size_y', s.specifications->'size_y') as json
                 from ref
-                join pglids.sensor s on s.id = ref.sensor
-                join pglids.transfo t on ref.transfo_list @> ARRAY[t.id]
-                join pglids.transfo_type tt on tt.id = t.transfo_type
+                join li3ds.sensor s on s.id = ref.sensor
+                join li3ds.transfo t on ref.transfo_list @> ARRAY[t.id]
+                join li3ds.transfo_type tt on tt.id = t.transfo_type
                 where s.type = 'camera'
                 group by s.id
             ) select
                 json
             from last
-                join pglids.datasource ds on
+                join li3ds.datasource ds on
                 ds.referential = ref_list[array_upper(ref_list, 1)]
                 and ds.session = %s
             """, (session_id, session_id))

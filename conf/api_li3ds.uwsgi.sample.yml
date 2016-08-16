@@ -1,11 +1,11 @@
 uwsgi:
-    virtualenv: /home/user/.virtualenvs/lids-api/
+    virtualenv: /home/user/.virtualenvs/api_li3ds/
     master: true
     socket: localhost:5000
-    module: lids_api.wsgi:app
+    module: api_li3ds.wsgi:app
     processes: 1
     enable-threads: true
     protocol: http
     need-app: true
     catch: exceptions=true
-    env: LIDS_API_SETTINGS=/home/user/lids-api/conf/lids_api.yml
+    env: API_LI3DS_SETTINGS=/home/user/api_li3ds/conf/api_li3ds.yml

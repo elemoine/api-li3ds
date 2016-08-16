@@ -10,7 +10,7 @@ Api for accessing metadata of a li3ds datastore.
 
     .. code-block::
 
-        pip install .[dev,doc]
+        pip install -e .[dev,doc]
 
   - prod environnement:
 
@@ -19,16 +19,16 @@ Api for accessing metadata of a li3ds datastore.
         pip install .[prod]
 
 
-3. (dev) Duplicate the conf/lids_api.sample.yml file to conf/lids_api.yml and adapt parameters
+3. (dev) Duplicate the conf/api_li3ds.sample.yml file to conf/api_li3ds.yml and adapt parameters
 
 4. (dev) Launch the application using:
 
   .. code-block::
 
-      python lids_api/wsgi.py
+      python api_li3ds/wsgi.py
 
 5. (dev) Go to https://localhost:5000 and start to play with the API
 
 
-.. image:: https://raw.githubusercontent.com/LI3DS/lids-api/master/screen-api.png
+.. image:: https://raw.githubusercontent.com/LI3DS/api_li3ds/master/screen-api.png
     :align: center

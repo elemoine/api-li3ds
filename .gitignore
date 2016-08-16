@@ -1,6 +1,6 @@
 # remove config files
-conf/lids_api.yml
-conf/lids_api.uwsgi.yml
+conf/api_li3ds.yml
+conf/api_li3ds.uwsgi.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

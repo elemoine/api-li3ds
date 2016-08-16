@@ -8,10 +8,9 @@ from pathlib import Path
 from flask import Flask
 from yaml import load as yload
 
-from lids_api.app import api
-from lids_api.database import Session
+from api_li3ds.app import api
+from api_li3ds.database import Session
 
-# lids_api version
 __version__ = '0.1.dev0'
 
 
@@ -99,13 +98,14 @@ def create_app(env='Defaults'):
     :returns: flask application instance
     """
     app = Flask(__name__)
-    cfgfile = os.environ.get('LIDS_API_SETTINGS')
+    cfgfile = os.environ.get('API_LI3DS_SETTINGS')
     if cfgfile:
         app.config.update(load_yaml_config(cfgfile))
     else:
         try:
-            cfgfile = (Path(__file__).parent / '..' / 'conf' / 'lids_api.yml').resolve()
+            cfgfile = (Path(__file__).parent.parent / 'conf' / 'api_li3ds.yml').resolve()
         except FileNotFoundError:
+            print(Path(__file__).parent.parent / 'conf' / 'api_li3ds.yml')
             logger.warning('no config file found !!')
             sys.exit(1)
     app.config.update(load_yaml_config(str(cfgfile)))

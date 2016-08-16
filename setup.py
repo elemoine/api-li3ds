@@ -49,10 +49,10 @@ def find_version(*file_paths):
 
 
 setup(
-    name='lids_api',
-    version=find_version('lids_api', '__init__.py'),
+    name='api_li3ds',
+    version=find_version('api_li3ds', '__init__.py'),
     description="REST Api for li3ds metadata",
-    url='https://github.com/LI3DS/lids-api',
+    url='https://github.com/LI3DS/api-li3ds',
     author='dev',
     author_email='contact@oslandia.com',
     license='GPLv3',

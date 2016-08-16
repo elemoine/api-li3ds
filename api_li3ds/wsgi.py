@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from lids_api import create_app
+from api_li3ds import create_app
 
 app = create_app()
 

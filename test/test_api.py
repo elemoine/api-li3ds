@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from lids_api import create_app
+from api_li3ds import create_app
 
 
 @pytest.fixture
