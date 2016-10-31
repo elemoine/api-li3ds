@@ -6,10 +6,11 @@ from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 
 requirements = (
-    'flask==0.10.1',
+    'flask==0.11.1',
     'flask-restplus==0.9.2',
-    'psycopg2==2.6.1',
-    'pyyaml'
+    'psycopg2==2.6.2',
+    'pyyaml',
+    'graphviz>=0.5.1'
 )
 
 dev_requirements = (

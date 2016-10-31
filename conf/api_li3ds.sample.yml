@@ -1,9 +1,9 @@
 flask:
     PROPAGATE_EXCEPTIONS: True
     DEBUG: True
-    LOG_LEVEL: debug
     pg_host: localhost
     pg_name: li3ds
     pg_port: 5432
     pg_user: user
     pg_password: userpass
+    SWAGGER_UI_DOC_EXPANSION: none
