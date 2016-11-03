@@ -31,7 +31,7 @@ processing_model = nsds.inherit('Processing Model', processing_model_post, {
 })
 
 
-@nsds.route('/')
+@nsds.route('/', endpoint='datasources')
 class Datasources(Resource):
 
     @nsds.marshal_with(datasource_model)
@@ -52,7 +52,7 @@ class Datasources(Resource):
         ), 201
 
 
-@nsds.route('/<int:id>')
+@nsds.route('/<int:id>', endpoint='datasource')
 @nsds.response(410, 'Datasource not found')
 class OneDatasource(Resource):
 
@@ -75,7 +75,7 @@ class OneDatasource(Resource):
         return '', 204
 
 
-@nsds.route('/<int:id>/processing')
+@nsds.route('/<int:id>/processing', endpoint='datasource_processing')
 @nsds.param('id', 'The datasource identifier')
 @nsds.response(410, 'Datasource not found')
 class Processing(Resource):
@@ -108,7 +108,7 @@ class Processing(Resource):
         ), 201
 
 
-@nsds.route('/processing/<int:id>')
+@nsds.route('/processing/<int:id>', endpoint='processing')
 @nsds.param('id', 'The Processing identifier')
 @nsds.response(410, 'Processing not found')
 class OneProcessing(Resource):

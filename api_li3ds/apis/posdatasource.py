@@ -32,7 +32,7 @@ posprocessing_model = nspds.inherit('PosProcessing Model', posprocessing_model_p
 })
 
 
-@nspds.route('/')
+@nspds.route('/', endpoint='posdatasources')
 class PosDatasources(Resource):
 
     @nspds.marshal_with(posdatasource_model)
@@ -53,7 +53,7 @@ class PosDatasources(Resource):
         ), 201
 
 
-@nspds.route('/<int:id>')
+@nspds.route('/<int:id>', endpoint='posdatasource')
 @nspds.response(410, 'PosDatasource not found')
 class OnePosDatasource(Resource):
 
@@ -76,7 +76,7 @@ class OnePosDatasource(Resource):
         return '', 204
 
 
-@nspds.route('/<int:id>/posprocessing')
+@nspds.route('/<int:id>/posprocessing', endpoint='posdatasource_posprocessing')
 @nspds.param('id', 'The datasource identifier')
 @nspds.response(410, 'PosDatasource not found')
 class PosProcessing(Resource):
@@ -109,7 +109,7 @@ class PosProcessing(Resource):
         ), 201
 
 
-@nspds.route('/posprocessing/<int:id>')
+@nspds.route('/posprocessing/<int:id>', endpoint='posprocessing')
 @nspds.param('id', 'The PosProcessing identifier')
 @nspds.response(410, 'PosProcessing not found')
 class OneProcessing(Resource):

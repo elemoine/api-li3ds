@@ -55,7 +55,7 @@ transfo_model = nspfm.model('Transfo Model', {
 })
 
 
-@nspfm.route('/')
+@nspfm.route('/', endpoint='platforms')
 class Platforms(Resource):
 
     @nspfm.marshal_with(platform_model)
@@ -76,7 +76,7 @@ class Platforms(Resource):
         ), 201
 
 
-@nspfm.route('/<int:id>')
+@nspfm.route('/<int:id>', endpoint='platform')
 @nspfm.response(410, 'Platform not found')
 class OnePlatform(Resource):
 
@@ -99,7 +99,7 @@ class OnePlatform(Resource):
         return '', 204
 
 
-@nspfm.route('/<int:id>/configs')
+@nspfm.route('/<int:id>/configs', endpoint='platform_configs')
 class PlatformConfigs(Resource):
 
     @nspfm.marshal_with(platform_config)
@@ -121,7 +121,7 @@ class PlatformConfigs(Resource):
         ), 201
 
 
-@nspfm.route('/configs/<int:id>')
+@nspfm.route('/configs/<int:id>', endpoint='platform_config')
 @nspfm.param('id', 'The platform config identifier')
 class OnePlatformConfig(Resource):
 
@@ -132,17 +132,16 @@ class OnePlatformConfig(Resource):
         )
 
 
-@nspfm.route('/configs/<int:id>/preview')
+@nspfm.route('/configs/<int:id>/preview', endpoint='platform_config_preview')
 @nspfm.param('id', 'The platform config identifier')
 class PlatformConfigPreview(Resource):
-    '''
-    Nodes are referentials and edges are tranformations between referentials
-    '''
 
     def get(self, id):
         '''Get a preview for this platform configuration as png
 
-        Nodes are referentials and edges are tranformations between referentials
+        Nodes are referentials and edges are tranformations between referentials.
+        Blue arrows represents connections between sensors (or sensor groups).
+        Red nodes are root referentials
         '''
         edges = Database.query(
             """
@@ -199,7 +198,7 @@ class PlatformConfigPreview(Resource):
         return response
 
 
-@nspfm.route('/sensortypes')
+@nspfm.route('/sensortypes', endpoint='platforms_sensortypes')
 class Sensor_types(Resource):
 
     def get(self):

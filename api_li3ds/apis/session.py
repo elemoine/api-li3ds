@@ -22,7 +22,7 @@ session_model = nssession.inherit('Session Model', session_model_post, {
 })
 
 
-@nssession.route('/')
+@nssession.route('/', endpoint='sessions')
 class AllSessions(Resource):
 
     @nssession.marshal_with(session_model)
@@ -43,7 +43,7 @@ class AllSessions(Resource):
         ), 201
 
 
-@nssession.route('/<int:id>')
+@nssession.route('/<int:id>', endpoint='session')
 @nssession.response(410, 'Session not found')
 class OneSession(Resource):
 
@@ -63,7 +63,7 @@ class OneSession(Resource):
         return '', 204
 
 
-@nssession.route('/<int:id>/platform')
+@nssession.route('/<int:id>/platform', endpoint='session_platform')
 @nssession.param('id', 'The session identifier')
 class Platform(Resource):
 
@@ -77,7 +77,7 @@ class Platform(Resource):
         )
 
 
-@nssession.route('/<int:id>/datasources')
+@nssession.route('/<int:id>/datasources', endpoint='session_datasources')
 class Datasources(Resource):
 
     @nssession.marshal_with(datasource_model)
@@ -90,7 +90,7 @@ class Datasources(Resource):
             """, (id,))
 
 
-@nssession.route('/<int:id>/posdatasources')
+@nssession.route('/<int:id>/posdatasources', endpoint='session_posdatasources')
 class PosDatasources(Resource):
 
     @nssession.marshal_with(posdatasource_model)

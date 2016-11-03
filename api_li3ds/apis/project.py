@@ -31,7 +31,7 @@ project_model = nsproject.inherit('Project Model', project_model_post, {
 })
 
 
-@nsproject.route('/')
+@nsproject.route('/', endpoint='projects')
 class Projects(Resource):
 
     @nsproject.marshal_with(project_model)
@@ -52,7 +52,7 @@ class Projects(Resource):
         ), 201
 
 
-@nsproject.route('/<string:name>')
+@nsproject.route('/<string:name>', endpoint='project')
 @nsproject.response(410, 'Project not found')
 @nsproject.param('name', 'The project name')
 class OneProject(Resource):
@@ -78,7 +78,7 @@ class OneProject(Resource):
         return '', 204
 
 
-@nsproject.route('/<string:name>/sessions')
+@nsproject.route('/<string:name>/sessions', endpoint='project_sessions')
 @nsproject.response(410, 'Project not found')
 @nsproject.param('name', 'The project name')
 class Sessions(Resource):
