@@ -13,15 +13,16 @@ from flask_restplus import abort
 # adapt python dict to postgresql json type
 register_adapter(dict, Json)
 
+
 def pgexceptions(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except PsycoError as exc:
-            current_app.logger.error(exc.pgerror)
+            current_app.logger.error(exc.pgerror or exc.args)
             if current_app.debug:
-                msg = '{}{}'.format(exc.diag.message_detail, exc.diag.message_primary)
+                msg = '{} - {}'.format(exc.diag.message_detail, exc.diag.message_primary)
                 return abort(404, msg)
             return abort(404, 'Database Error')
         return func(*args, **kwargs)

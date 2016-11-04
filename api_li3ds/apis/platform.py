@@ -5,7 +5,7 @@ from graphviz import Digraph
 
 from api_li3ds.app import api, Resource
 from api_li3ds.database import Database
-
+from .sensor import sensor_model
 
 nspfm = api.namespace('platforms', description='platforms related operations')
 
@@ -40,19 +40,6 @@ platform_config = nspfm.inherit(
     {
         'id': fields.Integer,
     })
-
-
-transfo_model = nspfm.model('Transfo Model', {
-    'id': fields.Integer,
-    'source': fields.Integer,
-    'target': fields.Integer,
-    'transfo_type': fields.Integer,
-    'description': fields.String,
-    'parameters': fields.Raw,
-    'tdate': fields.DateTime(dt_format='iso8601'),
-    'validity_start': fields.DateTime(dt_format='iso8601', default=None),
-    'validity_end': fields.DateTime(dt_format='iso8601', default=None),
-})
 
 
 @nspfm.route('/', endpoint='platforms')
@@ -131,6 +118,14 @@ class OnePlatformConfig(Resource):
             "select * from li3ds.platform_config where id = %s", (id,)
         )
 
+    @nspfm.response(204, 'Platform configuration deleted')
+    def delete(self, id):
+        '''Delete a platform configuration given its identifier'''
+        res = Database.rowcount("delete from li3ds.platform_config where id=%s", (id,))
+        if not res:
+            nspfm.abort(410, 'Platform configuration not found')
+        return '', 204
+
 
 @nspfm.route('/configs/<int:id>/preview', endpoint='platform_config_preview')
 @nspfm.param('id', 'The platform config identifier')
@@ -198,12 +193,21 @@ class PlatformConfigPreview(Resource):
         return response
 
 
-@nspfm.route('/sensortypes', endpoint='platforms_sensortypes')
-class Sensor_types(Resource):
+@nspfm.route('/configs/<int:id>/sensors', endpoint='platform_config_sensors')
+@nspfm.param('id', 'The platform config identifier')
+class PlatformConfigSensors(Resource):
 
-    def get(self):
-        '''Sensor type list'''
-        return Database.query_aslist(
-            '''select unnest(enum_range(enum_first(null::li3ds.sensor_type),
-            null::li3ds.sensor_type))'''
-        )
+    @nspfm.marshal_with(sensor_model)
+    def get(self, id):
+        '''Get all sensors used in a given platform configuration'''
+        return Database.query_asjson("""
+            select
+               distinct s.*
+            from li3ds.platform_config pf
+            join li3ds.transfo_tree tt on tt.id = ANY(pf.transfo_trees)
+            , lateral unnest(tt.transfos) as tid
+            join li3ds.transfo t on t.id = tid
+            join li3ds.referential r on r.id = t.source or r.id = t.target
+            join li3ds.sensor s on s.id = r.sensor
+            where pf.id = %s
+            """, (id,))
