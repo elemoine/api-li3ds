@@ -3,12 +3,15 @@ from itertools import chain
 from functools import wraps
 
 from psycopg2 import connect
-from psycopg2.extras import NamedTupleCursor
+from psycopg2.extras import NamedTupleCursor, Json
 from psycopg2 import Error as PsycoError
+from psycopg2.extensions import register_adapter
 
 from flask import current_app
 from flask_restplus import abort
 
+# adapt python dict to postgresql json type
+register_adapter(dict, Json)
 
 def pgexceptions(func):
     @wraps(func)
