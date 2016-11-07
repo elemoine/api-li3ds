@@ -58,6 +58,15 @@ def create_app():
 
     app.logger.debug('loading config from {}'.format(cfgfile))
 
+    if 'HEADER_API_KEY' not in app.config:
+        app.logger.fatal('HEADER_API_KEY missing')
+        sys.exit(1)
+
+    if not app.config['HEADER_API_KEY'] or len(app.config['HEADER_API_KEY']) < 12:
+        app.logger.fatal('HEADER_API_KEY cannot be empty or '
+                         'too short (at least 12 characters)')
+        sys.exit(1)
+
     # load extensions
     # be carefull to load apis before blueprint !
     init_apis()
