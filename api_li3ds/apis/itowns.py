@@ -86,9 +86,12 @@ class SensorsSession(Resource):
                 id
                 , ARRAY[specifications->'size_x', specifications->'size_y'] as size
                 , _.transfos
-            from camera_transfo, ins_transfo,
-                li3ds.dijkstra(%(pconfig)s, source, target) as path
-                , lateral (select jsonb_agg(row_to_json(s)) as transfos from
+            from
+                camera_transfo
+                , ins_transfo
+                , li3ds.dijkstra(%(pconfig)s, source, target) as path
+                , lateral (
+                    select jsonb_agg(row_to_json(s)) as transfos from
                     (
                         select t.id, t.parameters, tt.description, tt.func_name as type
                          from unnest(path) with ordinality as u(tid, ord)
