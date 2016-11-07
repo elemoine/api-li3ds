@@ -8,3 +8,4 @@ flask:
     pg_password: userpass
     SWAGGER_UI_DOC_EXPANSION: none
     SWAGGER_UI_JSONEDITOR: True
+    HEADER_API_KEY:
