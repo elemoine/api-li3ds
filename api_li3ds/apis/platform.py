@@ -64,7 +64,7 @@ class Platforms(Resource):
         ), 201
 
 
-@nspfm.route('/<int:id>', endpoint='platform')
+@nspfm.route('/<int:id>/', endpoint='platform')
 @nspfm.response(404, 'Platform not found')
 class OnePlatform(Resource):
 
@@ -88,7 +88,7 @@ class OnePlatform(Resource):
         return '', 410
 
 
-@nspfm.route('/<int:id>/configs', endpoint='platform_configs')
+@nspfm.route('/<int:id>/configs/', endpoint='platform_configs')
 class PlatformConfigs(Resource):
 
     @nspfm.marshal_with(platform_config)
@@ -111,7 +111,7 @@ class PlatformConfigs(Resource):
         ), 201
 
 
-@nspfm.route('/configs/<int:id>', endpoint='platform_config')
+@nspfm.route('/configs/<int:id>/', endpoint='platform_config')
 @nspfm.param('id', 'The platform config identifier')
 class OnePlatformConfig(Resource):
 
@@ -131,7 +131,7 @@ class OnePlatformConfig(Resource):
         return '', 410
 
 
-@nspfm.route('/configs/<int:id>/preview', endpoint='platform_config_preview')
+@nspfm.route('/configs/<int:id>/preview/', endpoint='platform_config_preview')
 @nspfm.param('id', 'The platform config identifier')
 class PlatformConfigPreview(Resource):
 
@@ -197,7 +197,7 @@ class PlatformConfigPreview(Resource):
         return response
 
 
-@nspfm.route('/configs/<int:id>/sensors', endpoint='platform_config_sensors')
+@nspfm.route('/configs/<int:id>/sensors/', endpoint='platform_config_sensors')
 @nspfm.param('id', 'The platform config identifier')
 class PlatformConfigSensors(Resource):
 

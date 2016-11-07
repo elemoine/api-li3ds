@@ -49,7 +49,7 @@ class TransfoTree(Resource):
         ), 201
 
 
-@nstft.route('/<int:id>', endpoint='transfotree')
+@nstft.route('/<int:id>/', endpoint='transfotree')
 @nstft.response(404, 'Transformation tree not found')
 class OneTransfoTree(Resource):
 

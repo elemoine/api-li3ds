@@ -69,7 +69,7 @@ class Transfo(Resource):
         ), 201
 
 
-@nstf.route('/<int:id>', endpoint='transfo')
+@nstf.route('/<int:id>/', endpoint='transfo')
 @nstf.response(404, 'Transformation not found')
 class OneTransfo(Resource):
 
@@ -93,7 +93,7 @@ class OneTransfo(Resource):
         return '', 410
 
 
-@nstf.route('/types', endpoint='transfotypes')
+@nstf.route('/types/', endpoint='transfotypes')
 class TransfoType(Resource):
 
     @nstf.marshal_with(transfotype_model)
@@ -117,7 +117,7 @@ class TransfoType(Resource):
         ), 201
 
 
-@nstf.route('/types/<int:id>', endpoint='transfotype')
+@nstf.route('/types/<int:id>/', endpoint='transfotype')
 @nstf.response(404, 'Transformation type not found')
 class OneTransfoType(Resource):
 

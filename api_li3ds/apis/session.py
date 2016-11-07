@@ -44,7 +44,7 @@ class AllSessions(Resource):
         ), 201
 
 
-@nssession.route('/<int:id>', endpoint='session')
+@nssession.route('/<int:id>/', endpoint='session')
 @nssession.response(404, 'Session not found')
 class OneSession(Resource):
 
@@ -65,7 +65,7 @@ class OneSession(Resource):
         return '', 410
 
 
-@nssession.route('/<int:id>/platform', endpoint='session_platform')
+@nssession.route('/<int:id>/platform/', endpoint='session_platform')
 @nssession.param('id', 'The session identifier')
 class Platform(Resource):
 
@@ -79,7 +79,7 @@ class Platform(Resource):
         )
 
 
-@nssession.route('/<int:id>/datasources', endpoint='session_datasources')
+@nssession.route('/<int:id>/datasources/', endpoint='session_datasources')
 class Datasources(Resource):
 
     @nssession.marshal_with(datasource_model)
@@ -92,7 +92,7 @@ class Datasources(Resource):
             """, (id,))
 
 
-@nssession.route('/<int:id>/posdatasources', endpoint='session_posdatasources')
+@nssession.route('/<int:id>/posdatasources/', endpoint='session_posdatasources')
 class PosDatasources(Resource):
 
     @nssession.marshal_with(posdatasource_model)

@@ -53,7 +53,7 @@ class Datasources(Resource):
         ), 201
 
 
-@nsds.route('/<int:id>', endpoint='datasource')
+@nsds.route('/<int:id>/', endpoint='datasource')
 @nsds.response(404, 'Datasource not found')
 class OneDatasource(Resource):
 
@@ -77,7 +77,7 @@ class OneDatasource(Resource):
         return '', 410
 
 
-@nsds.route('/<int:id>/processing', endpoint='datasource_processing')
+@nsds.route('/<int:id>/processing/', endpoint='datasource_processing')
 @nsds.param('id', 'The datasource identifier')
 @nsds.response(404, 'Datasource not found')
 class Processing(Resource):
@@ -111,7 +111,7 @@ class Processing(Resource):
         ), 201
 
 
-@nsds.route('/processing/<int:id>', endpoint='processing')
+@nsds.route('/processing/<int:id>/', endpoint='processing')
 @nsds.param('id', 'The Processing identifier')
 @nsds.response(404, 'Processing not found')
 class OneProcessing(Resource):

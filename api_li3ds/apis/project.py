@@ -53,7 +53,7 @@ class Projects(Resource):
         ), 201
 
 
-@nsproject.route('/<string:name>', endpoint='project')
+@nsproject.route('/<string:name>/', endpoint='project')
 @nsproject.response(404, 'Project not found')
 @nsproject.param('name', 'The project name')
 class OneProject(Resource):
@@ -80,7 +80,7 @@ class OneProject(Resource):
         return '', 410
 
 
-@nsproject.route('/<string:name>/sessions', endpoint='project_sessions')
+@nsproject.route('/<string:name>/sessions/', endpoint='project_sessions')
 @nsproject.response(404, 'Project not found')
 @nsproject.param('name', 'The project name')
 class Sessions(Resource):

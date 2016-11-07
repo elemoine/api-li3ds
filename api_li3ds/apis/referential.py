@@ -61,7 +61,7 @@ class Referential(Resource):
         ), 201
 
 
-@nsrf.route('/<int:id>', endpoint='referential')
+@nsrf.route('/<int:id>/', endpoint='referential')
 @nsrf.response(404, 'Referential not found')
 class OneReferential(Resource):
 

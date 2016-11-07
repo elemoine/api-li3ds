@@ -55,7 +55,7 @@ class Sensors(Resource):
         ), 201
 
 
-@nssensor.route('/<int:id>', endpoint='sensor')
+@nssensor.route('/<int:id>/', endpoint='sensor')
 @nssensor.response(404, 'Sensor not found')
 class OneSensor(Resource):
 
@@ -79,7 +79,7 @@ class OneSensor(Resource):
         return '', 410
 
 
-@nssensor.route('/types', endpoint='sensor_types')
+@nssensor.route('/types/', endpoint='sensor_types')
 class Sensor_types(Resource):
 
     def get(self):

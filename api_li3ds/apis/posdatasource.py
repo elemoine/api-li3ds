@@ -54,7 +54,7 @@ class PosDatasources(Resource):
         ), 201
 
 
-@nspds.route('/<int:id>', endpoint='posdatasource')
+@nspds.route('/<int:id>/', endpoint='posdatasource')
 @nspds.response(404, 'PosDatasource not found')
 class OnePosDatasource(Resource):
 
@@ -78,7 +78,7 @@ class OnePosDatasource(Resource):
         return '', 410
 
 
-@nspds.route('/<int:id>/posprocessing', endpoint='posdatasource_posprocessing')
+@nspds.route('/<int:id>/posprocessing/', endpoint='posdatasource_posprocessing')
 @nspds.param('id', 'The datasource identifier')
 @nspds.response(404, 'PosDatasource not found')
 class PosProcessing(Resource):
@@ -112,7 +112,7 @@ class PosProcessing(Resource):
         ), 201
 
 
-@nspds.route('/posprocessing/<int:id>', endpoint='posprocessing')
+@nspds.route('/posprocessing/<int:id>/', endpoint='posprocessing')
 @nspds.param('id', 'The PosProcessing identifier')
 @nspds.response(404, 'PosProcessing not found')
 class OneProcessing(Resource):
