@@ -47,6 +47,7 @@ class Referential(Resource):
         '''List Referentials'''
         return Database.query_asjson("select * from li3ds.referential")
 
+    @api.secure
     @nsrf.expect(referential_model_post)
     @nsrf.marshal_with(referential_model)
     @nsrf.response(201, 'Platform created')
@@ -61,7 +62,7 @@ class Referential(Resource):
 
 
 @nsrf.route('/<int:id>', endpoint='referential')
-@nsrf.response(410, 'Referential not found')
+@nsrf.response(404, 'Referential not found')
 class OneReferential(Resource):
 
     @nsrf.marshal_with(referential_model)
@@ -71,13 +72,14 @@ class OneReferential(Resource):
             "select * from li3ds.referential where id=%s", (id,)
         )
         if not res:
-            nsrf.abort(410, 'Referential not found')
+            nsrf.abort(404, 'Referential not found')
         return res
 
-    @nsrf.response(204, 'Referential deleted')
+    @api.secure
+    @nsrf.response(410, 'Referential deleted')
     def delete(self, id):
         '''Delete a referential given its identifier'''
         res = Database.rowcount("delete from li3ds.referential where id=%s", (id,))
         if not res:
-            nsrf.abort(410, 'referential not found')
-        return '', 204
+            nsrf.abort(404, 'referential not found')
+        return '', 410

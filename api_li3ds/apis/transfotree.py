@@ -32,6 +32,7 @@ class TransfoTree(Resource):
         '''List all transformation trees'''
         return Database.query_asjson("select * from li3ds.transfo_tree")
 
+    @api.secure
     @nstft.expect(transfotree_model_post)
     @nstft.marshal_with(transfotree_model)
     @nstft.response(201, 'Transformation created')
@@ -49,7 +50,7 @@ class TransfoTree(Resource):
 
 
 @nstft.route('/<int:id>', endpoint='transfotree')
-@nstft.response(410, 'Transformation tree not found')
+@nstft.response(404, 'Transformation tree not found')
 class OneTransfoTree(Resource):
 
     @nstft.marshal_with(transfotree_model)
@@ -59,13 +60,14 @@ class OneTransfoTree(Resource):
             "select * from li3ds.transfo_tree where id=%s", (id,)
         )
         if not res:
-            nstft.abort(410, 'Transformation tree not found')
+            nstft.abort(404, 'Transformation tree not found')
         return res
 
-    @nstft.response(204, 'Transformation deleted')
+    @api.secure
+    @nstft.response(410, 'Transformation deleted')
     def delete(self, id):
         '''Delete a transformation given its identifier'''
         res = Database.rowcount("delete from li3ds.transfo_tree where id=%s", (id,))
         if not res:
-            nstft.abort(410, 'Transformation tree not found')
-        return '', 204
+            nstft.abort(404, 'Transformation tree not found')
+        return '', 410

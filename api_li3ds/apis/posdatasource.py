@@ -40,6 +40,7 @@ class PosDatasources(Resource):
         '''Get all datasources'''
         return Database.query_asjson("select * from li3ds.posdatasource")
 
+    @api.secure
     @nspds.expect(posdatasource_model_post)
     @nspds.marshal_with(posdatasource_model)
     @nspds.response(201, 'PosDatasource created')
@@ -54,7 +55,7 @@ class PosDatasources(Resource):
 
 
 @nspds.route('/<int:id>', endpoint='posdatasource')
-@nspds.response(410, 'PosDatasource not found')
+@nspds.response(404, 'PosDatasource not found')
 class OnePosDatasource(Resource):
 
     @nspds.marshal_with(posdatasource_model)
@@ -64,21 +65,22 @@ class OnePosDatasource(Resource):
             "select * from li3ds.posdatasource where id=%s", (id,)
         )
         if not res:
-            nspds.abort(410, 'PosDatasource not found')
+            nspds.abort(404, 'PosDatasource not found')
         return res
 
-    @nspds.response(204, 'PosDatasource deleted')
+    @api.secure
+    @nspds.response(410, 'PosDatasource deleted')
     def delete(self, id):
         '''Delete a datasource given its identifier'''
         res = Database.rowcount("delete from li3ds.posdatasource where id=%s", (id,))
         if not res:
-            nspds.abort(410, 'PosDatasource not found')
-        return '', 204
+            nspds.abort(404, 'PosDatasource not found')
+        return '', 410
 
 
 @nspds.route('/<int:id>/posprocessing', endpoint='posdatasource_posprocessing')
 @nspds.param('id', 'The datasource identifier')
-@nspds.response(410, 'PosDatasource not found')
+@nspds.response(404, 'PosDatasource not found')
 class PosProcessing(Resource):
 
     @nspds.marshal_with(posprocessing_model)
@@ -88,7 +90,7 @@ class PosProcessing(Resource):
             "select * from li3ds.posdatasource where id=%s", (id,)
         )
         if not res:
-            nspds.abort(410, 'PosDatasource not found')
+            nspds.abort(404, 'PosDatasource not found')
 
         return Database.query_asjson(
             " select p.* from li3ds.posprocessing p"
@@ -96,6 +98,7 @@ class PosProcessing(Resource):
             (id,)
         )
 
+    @api.secure
     @nspds.expect(posprocessing_model_post)
     @nspds.marshal_with(posprocessing_model)
     @nspds.response(201, 'PosDatasource created')
@@ -111,7 +114,7 @@ class PosProcessing(Resource):
 
 @nspds.route('/posprocessing/<int:id>', endpoint='posprocessing')
 @nspds.param('id', 'The PosProcessing identifier')
-@nspds.response(410, 'PosProcessing not found')
+@nspds.response(404, 'PosProcessing not found')
 class OneProcessing(Resource):
 
     @nspds.marshal_with(posprocessing_model)
@@ -121,10 +124,11 @@ class OneProcessing(Resource):
             " select * from li3ds.posprocessing where id = %s", (id,)
         )
 
-    @nspds.response(204, 'PosProcessing deleted')
+    @api.secure
+    @nspds.response(410, 'PosProcessing deleted')
     def delete(self, id):
         '''Delete a posprocessing entry'''
         res = Database.rowcount("delete from li3ds.posprocessing where id=%s", (id,))
         if not res:
-            nspds.abort(410, 'PosProcessing not found')
-        return '', 204
+            nspds.abort(404, 'PosProcessing not found')
+        return '', 410

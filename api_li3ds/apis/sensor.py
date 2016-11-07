@@ -37,6 +37,7 @@ class Sensors(Resource):
         '''List sensors'''
         return Database.query_asjson("select * from li3ds.sensor")
 
+    @api.secure
     @nssensor.expect(sensor_model_post)
     @nssensor.marshal_with(sensor_model)
     @nssensor.response(201, 'Sensor created')
@@ -55,7 +56,7 @@ class Sensors(Resource):
 
 
 @nssensor.route('/<int:id>', endpoint='sensor')
-@nssensor.response(410, 'Sensor not found')
+@nssensor.response(404, 'Sensor not found')
 class OneSensor(Resource):
 
     @nssensor.marshal_with(sensor_model)
@@ -65,16 +66,17 @@ class OneSensor(Resource):
             "select * from li3ds.sensor where id=%s", (id,)
         )
         if not res:
-            nssensor.abort(410, 'sensor not found')
+            nssensor.abort(404, 'sensor not found')
         return res
 
-    @nssensor.response(204, 'Sensor deleted')
+    @api.secure
+    @nssensor.response(410, 'Sensor deleted')
     def delete(self, id):
         '''Delete a sensor given its identifier'''
         res = Database.rowcount("delete from li3ds.sensor where id=%s", (id,))
         if not res:
-            nssensor.abort(410, 'Sensor not found')
-        return '', 204
+            nssensor.abort(404, 'Sensor not found')
+        return '', 410
 
 
 @nssensor.route('/types', endpoint='sensor_types')

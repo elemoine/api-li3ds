@@ -51,6 +51,7 @@ class Transfo(Resource):
         '''List all transformations'''
         return Database.query_asjson("select * from li3ds.transfo")
 
+    @api.secure
     @nstf.expect(transfo_model_post)
     @nstf.marshal_with(transfo_model)
     @nstf.response(201, 'Transformation created')
@@ -69,7 +70,7 @@ class Transfo(Resource):
 
 
 @nstf.route('/<int:id>', endpoint='transfo')
-@nstf.response(410, 'Transformation not found')
+@nstf.response(404, 'Transformation not found')
 class OneTransfo(Resource):
 
     @nstf.marshal_with(transfo_model)
@@ -79,16 +80,17 @@ class OneTransfo(Resource):
             "select * from li3ds.transfo where id=%s", (id,)
         )
         if not res:
-            nstf.abort(410, 'Transformation not found')
+            nstf.abort(404, 'Transformation not found')
         return res
 
-    @nstf.response(204, 'Transformation deleted')
+    @api.secure
+    @nstf.response(410, 'Transformation deleted')
     def delete(self, id):
         '''Delete a transformation given its identifier'''
         res = Database.rowcount("delete from li3ds.transfo where id=%s", (id,))
         if not res:
-            nstf.abort(410, 'Transformation not found')
-        return '', 204
+            nstf.abort(404, 'Transformation not found')
+        return '', 410
 
 
 @nstf.route('/types', endpoint='transfotypes')
@@ -99,6 +101,7 @@ class TransfoType(Resource):
         '''List all transformation types'''
         return Database.query_asjson("select * from li3ds.transfo_type")
 
+    @api.secure
     @nstf.expect(transfotype_model_post)
     @nstf.marshal_with(transfotype_model)
     @nstf.response(201, 'Transformation type created')
@@ -115,7 +118,7 @@ class TransfoType(Resource):
 
 
 @nstf.route('/types/<int:id>', endpoint='transfotype')
-@nstf.response(410, 'Transformation type not found')
+@nstf.response(404, 'Transformation type not found')
 class OneTransfoType(Resource):
 
     @nstf.marshal_with(transfotype_model)
@@ -125,13 +128,14 @@ class OneTransfoType(Resource):
             "select * from li3ds.transfo_type where id=%s", (id,)
         )
         if not res:
-            nstf.abort(410, 'Transformation not found')
+            nstf.abort(404, 'Transformation type not found')
         return res
 
-    @nstf.response(204, 'Transformation type deleted')
+    @api.secure
+    @nstf.response(410, 'Transformation type deleted')
     def delete(self, id):
         '''Delete a transformation type given its identifier'''
         res = Database.rowcount("delete from li3ds.transfo_type where id=%s", (id,))
         if not res:
-            nstf.abort(410, 'Transformation not found')
-        return '', 204
+            nstf.abort(404, 'Transformation type not found')
+        return '', 410

@@ -50,6 +50,7 @@ class Platforms(Resource):
         '''List platforms'''
         return Database.query_asjson("select * from li3ds.platform")
 
+    @api.secure
     @nspfm.expect(platform_model_post)
     @nspfm.marshal_with(platform_model)
     @nspfm.response(201, 'Platform created')
@@ -64,7 +65,7 @@ class Platforms(Resource):
 
 
 @nspfm.route('/<int:id>', endpoint='platform')
-@nspfm.response(410, 'Platform not found')
+@nspfm.response(404, 'Platform not found')
 class OnePlatform(Resource):
 
     @nspfm.marshal_with(platform_model)
@@ -74,16 +75,17 @@ class OnePlatform(Resource):
             "select * from li3ds.platform where id=%s", (id,)
         )
         if not res:
-            nspfm.abort(410, 'Platform not found')
+            nspfm.abort(404, 'Platform not found')
         return res
 
-    @nspfm.response(204, 'Platform deleted')
+    @api.secure
+    @nspfm.response(410, 'Platform deleted')
     def delete(self, id):
         '''Delete a platform given its identifier'''
         res = Database.rowcount("delete from li3ds.platform where id=%s", (id,))
         if not res:
-            nspfm.abort(410, 'Platform not found')
-        return '', 204
+            nspfm.abort(404, 'Platform not found')
+        return '', 410
 
 
 @nspfm.route('/<int:id>/configs', endpoint='platform_configs')
@@ -96,6 +98,7 @@ class PlatformConfigs(Resource):
             "select * from li3ds.platform_config where platform = %s", (id,)
         )
 
+    @api.secure
     @nspfm.expect(platform_config_post)
     @nspfm.marshal_with(platform_config)
     def post(self, id):
@@ -118,13 +121,14 @@ class OnePlatformConfig(Resource):
             "select * from li3ds.platform_config where id = %s", (id,)
         )
 
-    @nspfm.response(204, 'Platform configuration deleted')
+    @api.secure
+    @nspfm.response(410, 'Platform configuration deleted')
     def delete(self, id):
         '''Delete a platform configuration given its identifier'''
         res = Database.rowcount("delete from li3ds.platform_config where id=%s", (id,))
         if not res:
-            nspfm.abort(410, 'Platform configuration not found')
-        return '', 204
+            nspfm.abort(404, 'Platform configuration not found')
+        return '', 410
 
 
 @nspfm.route('/configs/<int:id>/preview', endpoint='platform_config_preview')

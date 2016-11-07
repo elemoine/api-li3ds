@@ -30,6 +30,7 @@ class AllSessions(Resource):
         '''Get all sessions'''
         return Database.query_asjson("select * from li3ds.session")
 
+    @api.secure
     @nssession.expect(session_model_post)
     @nssession.marshal_with(session_model)
     @nssession.response(201, 'Session created')
@@ -44,7 +45,7 @@ class AllSessions(Resource):
 
 
 @nssession.route('/<int:id>', endpoint='session')
-@nssession.response(410, 'Session not found')
+@nssession.response(404, 'Session not found')
 class OneSession(Resource):
 
     @nssession.marshal_with(session_model)
@@ -54,13 +55,14 @@ class OneSession(Resource):
             "select * from li3ds.session where id=%s", (id,)
         )
 
-    @nssession.response(204, 'Session deleted')
+    @api.secure
+    @nssession.response(410, 'Session deleted')
     def delete(self, id):
         '''Delete a session given its identifier'''
         res = Database.rowcount("delete from li3ds.session where id=%s", (id,))
         if not res:
-            nssession.abort(410, 'Session not found')
-        return '', 204
+            nssession.abort(404, 'Session not found')
+        return '', 410
 
 
 @nssession.route('/<int:id>/platform', endpoint='session_platform')

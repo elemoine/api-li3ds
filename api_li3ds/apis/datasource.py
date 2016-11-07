@@ -39,6 +39,7 @@ class Datasources(Resource):
         '''Get all datasources'''
         return Database.query_asjson("select * from li3ds.datasource")
 
+    @api.secure
     @nsds.expect(datasource_model_post)
     @nsds.marshal_with(datasource_model)
     @nsds.response(201, 'Datasource created')
@@ -53,7 +54,7 @@ class Datasources(Resource):
 
 
 @nsds.route('/<int:id>', endpoint='datasource')
-@nsds.response(410, 'Datasource not found')
+@nsds.response(404, 'Datasource not found')
 class OneDatasource(Resource):
 
     @nsds.marshal_with(datasource_model)
@@ -63,21 +64,22 @@ class OneDatasource(Resource):
             "select * from li3ds.datasource where id=%s", (id,)
         )
         if not res:
-            nsds.abort(410, 'Datasource not found')
+            nsds.abort(404, 'Datasource not found')
         return res
 
-    @nsds.response(204, 'Datasource deleted')
+    @api.secure
+    @nsds.response(410, 'Datasource deleted')
     def delete(self, id):
         '''Delete a datasource given its identifier'''
         res = Database.rowcount("delete from li3ds.datasource where id=%s", (id,))
         if not res:
-            nsds.abort(410, 'Datasource not found')
-        return '', 204
+            nsds.abort(404, 'Datasource not found')
+        return '', 410
 
 
 @nsds.route('/<int:id>/processing', endpoint='datasource_processing')
 @nsds.param('id', 'The datasource identifier')
-@nsds.response(410, 'Datasource not found')
+@nsds.response(404, 'Datasource not found')
 class Processing(Resource):
 
     @nsds.marshal_with(processing_model)
@@ -87,7 +89,7 @@ class Processing(Resource):
             "select * from li3ds.datasource where id=%s", (id,)
         )
         if not res:
-            nsds.abort(410, 'Datasource not found')
+            nsds.abort(404, 'Datasource not found')
 
         return Database.query_asjson(
             " select p.* from li3ds.processing p"
@@ -95,6 +97,7 @@ class Processing(Resource):
             (id,)
         )
 
+    @api.secure
     @nsds.expect(processing_model_post)
     @nsds.marshal_with(processing_model)
     @nsds.response(201, 'Datasource created')
@@ -110,7 +113,7 @@ class Processing(Resource):
 
 @nsds.route('/processing/<int:id>', endpoint='processing')
 @nsds.param('id', 'The Processing identifier')
-@nsds.response(410, 'Processing not found')
+@nsds.response(404, 'Processing not found')
 class OneProcessing(Resource):
 
     @nsds.marshal_with(processing_model)
@@ -120,10 +123,11 @@ class OneProcessing(Resource):
             " select * from li3ds.processing where id = %s", (id,)
         )
 
-    @nsds.response(204, 'Processing deleted')
+    @api.secure
+    @nsds.response(410, 'Processing deleted')
     def delete(self, id):
         '''Delete a processing entry'''
         res = Database.rowcount("delete from li3ds.processing where id=%s", (id,))
         if not res:
-            nsds.abort(410, 'Processing not found')
-        return '', 204
+            nsds.abort(404, 'Processing not found')
+        return '', 410

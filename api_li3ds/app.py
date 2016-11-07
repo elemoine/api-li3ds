@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from functools import wraps
+from flask import request, current_app
 from flask_restplus import Api, Resource as OrigResource
 
 from api_li3ds.database import pgexceptions
@@ -11,7 +13,29 @@ class Resource(OrigResource):
     method_decorators = [pgexceptions]
 
 
-api = Api(
+class Li3dsApi(Api):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def secure(self, func):
+        '''Enforce authentication'''
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if HEADER_API_KEY not in request.headers:
+                self.abort(401, '{} required'.format(HEADER_API_KEY))
+            apikey = request.headers[HEADER_API_KEY]
+            if apikey != current_app.config['HEADER_API_KEY']:
+                # for now only one global api key form config file
+                self.abort(401, 'Unauthorized')
+            else:
+                return func(*args, **kwargs)
+
+        return wrapper
+
+
+api = Li3dsApi(
     version='1.0', title='Large Input 3D System API',
     description='API for accessing LI3DS metadata',
     validate=True,

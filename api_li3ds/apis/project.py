@@ -39,6 +39,7 @@ class Projects(Resource):
         '''List all projects'''
         return Database.query_asjson("select * from li3ds.project")
 
+    @api.secure
     @nsproject.expect(project_model_post)
     @nsproject.marshal_with(project_model, mask='id')
     def post(self):
@@ -53,7 +54,7 @@ class Projects(Resource):
 
 
 @nsproject.route('/<string:name>', endpoint='project')
-@nsproject.response(410, 'Project not found')
+@nsproject.response(404, 'Project not found')
 @nsproject.param('name', 'The project name')
 class OneProject(Resource):
 
@@ -62,10 +63,11 @@ class OneProject(Resource):
         '''Get a project given its name'''
         res = Database.query_asjson("select * from li3ds.project where name=%s", (name,))
         if not res:
-            nsproject.abort(410, 'Project not found')
+            nsproject.abort(404, 'Project not found')
         return res
 
-    @nsproject.response(204, 'Session deleted')
+    @api.secure
+    @nsproject.response(410, 'Session deleted')
     @nsproject.marshal_with(project_model, mask='id')
     def delete(self, name):
         '''
@@ -73,13 +75,13 @@ class OneProject(Resource):
         '''
         res = Database.query_asjson("select * from li3ds.project where name=%s", (name,))
         if not res:
-            nsproject.abort(410, 'Project not found')
+            nsproject.abort(404, 'Project not found')
         Database.query_aslist("select li3ds.delete_project(%s)", (name,))
-        return '', 204
+        return '', 410
 
 
 @nsproject.route('/<string:name>/sessions', endpoint='project_sessions')
-@nsproject.response(410, 'Project not found')
+@nsproject.response(404, 'Project not found')
 @nsproject.param('name', 'The project name')
 class Sessions(Resource):
 
@@ -88,7 +90,7 @@ class Sessions(Resource):
         '''List all sessions for a given project'''
         res = Database.query_asjson("select * from li3ds.project where name=%s", (name,))
         if not res:
-            nsproject.abort(410, 'Project not found')
+            nsproject.abort(404, 'Project not found')
         return Database.query_asjson(
             """select s.* from li3ds.session s
             join li3ds.project p on s.project=p.id where p.name=%s
