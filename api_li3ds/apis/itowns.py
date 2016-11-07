@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from flask import request
 from flask_restplus import fields
 from psycopg2.extensions import AsIs
 
@@ -16,7 +17,7 @@ image_model = nsitowns.model('Image', {
 })
 
 
-@nsitowns.route('/sessions/<int:session_id>/images')
+@nsitowns.route('/v1/sessions/<int:session_id>/images')
 class Images(Resource):
 
     @nsitowns.marshal_with(image_model)
@@ -41,75 +42,60 @@ class Images(Resource):
         )
 
 
-@nsitowns.route('/sessions/<int:session_id>/cameras')
+@nsitowns.route('/v1/sessions/<int:session_id>/cameras')
+@nsitowns.doc(params={
+    'platform_config': 'platform configuration identifier',
+})
 class SensorsSession(Resource):
 
     @nsitowns.response(404, 'Session not found')
     def get(self, session_id):
         '''List all camera calibrations for a given session'''
-        res = Database.query_asdict(
-            'select id from li3ds.session where id = %s',
-            (session_id, )
-        )
-        if not res:
-            nsitowns.abort(404, 'Session not found')
+        if 'platform_config' not in request.args:
+            nsitowns.abort(500, 'parameter required : platform_config')
+        # get all cameras for this platform configuration
 
-        session_id = res[0]['id']
-
-        values = Database.query_aslist(
-            '''
-            with recursive ref as (
-                -- get initial referential linked to session
+        values = Database.query_asjson("""
+            with transfos as (
+                -- all transformations for this platform config
                 select
-                    rp.id
-                    , rp.name
-                    , array[rp.id] as ref_list
-                    , rp.sensor
-                    , '{}'::int[] as transfo_list
+                    unnest(tt.transfos) as tid
+                from li3ds.platform_config pf
+                join li3ds.transfo_tree tt on tt.id = ANY(pf.transfo_trees)
+                where pf.id = %(pconfig)s
+            ), ins_transfo as (
+                -- get ins first transformation
+                select trlist.tid as target
+                from transfos trlist
+                join li3ds.transfo tr on tr.id = trlist.tid
+                join li3ds.referential r on tr.source = r.id or tr.target = r.id
+                join li3ds.sensor s on s.id = r.sensor
+                where s.type = 'ins' and r.root
+            ), camera_transfo as (
+                -- get all camera first transformations
+                select tr.id as source, se.*
                 from li3ds.session s
-                join li3ds.platform p on s.platform = p.id
-                -- à remplacer par datasource
-                join li3ds.referential rp on rp.platform = p.id
-                where s.id = %s -- session id
-            union
-                -- get all referentials linked by a transformation
-                select
-                    r.id,
-                    r.name,
-                    ref_list || r.id as ref_list,
-                    r.sensor,
-                    transfo_list || t.id
-                from ref
-                -- join on direct and reverse transformations
-                join li3ds.transfo t on (t.source = ref.id or t.target = ref.id)
-                -- target referential
-                join li3ds.referential r
-                    on (r.id = t.target or r.id = t.source)
-                    and not ARRAY[r.id] <@ ref_list -- no cycle
-            ), last as (
-                select
-                    min(ref_list) as ref_list,
-                    jsonb_agg(jsonb_build_object(tt.func_name,t.parameters))
-                        || jsonb_build_object('id', s.id)
-                        || jsonb_build_object('short_name', s.short_name)
-                        || jsonb_build_object('model', s.model)
-                        || jsonb_build_object('size_x', s.specifications->'size_x')
-                        || jsonb_build_object('size_y', s.specifications->'size_y') as json
-                from ref
-                join li3ds.sensor s on s.id = ref.sensor
-                join li3ds.transfo t on ref.transfo_list @> ARRAY[t.id]
-                join li3ds.transfo_type tt on tt.id = t.transfo_type
-                where s.type = 'camera'
-                group by s.id
-            ) select
-                json
-            from last
-                join li3ds.datasource ds on
-                ds.referential = ref_list[array_upper(ref_list, 1)]
-                and ds.session = %s
-            ''', (session_id, session_id))
+                join li3ds.datasource ds on ds.session = s.id
+                join li3ds.referential r on r.id = ds.referential
+                join li3ds.sensor se on se.id = r.sensor
+                join li3ds.transfo tr on tr.source = r.id or tr.target = r.id
+                join transfos trlist on trlist.tid = tr.id
+                where s.id = %(session)s and se.type = 'camera'
+            )
+            select
+                id
+                , ARRAY[specifications->'size_x', specifications->'size_y'] as size
+                , _.transfos
+            from camera_transfo, ins_transfo,
+                li3ds.dijkstra(%(pconfig)s, source, target) as path
+                , lateral (select jsonb_agg(row_to_json(s)) as transfos from
+                    (
+                        select t.id, t.parameters, tt.description, tt.func_name as type
+                         from unnest(path) with ordinality as u(tid, ord)
+                         join li3ds.transfo t on t.id = tid
+                         join li3ds.transfo_type tt on tt.id = t.transfo_type
+                     ) as s
+                ) as _
+            """, ({'pconfig': request.args['platform_config'], 'session': session_id}))
 
-        return [
-            {key: value for row in rows for key, value in row.items()}
-            for rows in values
-        ]
+        return values
