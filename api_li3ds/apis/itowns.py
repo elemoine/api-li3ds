@@ -20,25 +20,63 @@ image_model = nsitowns.model('Image', {
 @nsitowns.route('/v1/sessions/<int:session_id>/images')
 class Images(Resource):
 
-    @nsitowns.marshal_with(image_model)
     @nsitowns.response(404, 'Session not found')
     def get(self, session_id):
-        '''List all images in given session'''
-        res = Database.query_asdict(
-            'select p.name, s.id from li3ds.session s '
-            'join li3ds.project p on s.project = p.id '
-            'where s.id = %s',
-            (session_id, )
-        )
+        '''List all images in a given session with their location'''
+        # get project name
+        res = Database.query("""
+            select p.id, p.name from li3ds.project p
+            join li3ds.session s on s.project = p.id
+            where s.id = %s
+            """, (session_id, ))
+
         if not res:
             nsitowns.abort(404, 'Session not found')
 
-        project, session_id = res[0]['name'], res[0]['id']
+        project_name, project_id = res[0].name, res[0].id
 
-        return Database.query_asdict(
-            'select i.* from %s.image i '
-            'join li3ds.datasource d on d.session = %s and d.id = i.datasource',
-            (AsIs(project), session_id)
+        return Database.query_asjson(
+            """
+            with images as (
+                -- extract image epoch
+                select
+                    i.id,
+                    i.filename,
+                    i.etime,
+                    extract(epoch from etime) as epoch,
+                    rf.sensor
+                from %(project)s.image i
+                join li3ds.datasource ds on i.datasource = ds.id
+                join li3ds.referential rf on ds.referential = rf.id
+                where ds.session = %(session)s
+            ), posdatasource as (
+                -- get latest version of the route
+                select max(pds.id) as id, max(version)
+                from li3ds.project p
+                join li3ds.session s on s.project = p.id
+                join li3ds.posdatasource pds on pds.session = s.id
+                where p.id = %(project_id)s
+            )
+            select
+                i.id,
+                i.filename,
+                i.etime as date,
+                i.sensor,
+                pc_get(newpt, 'x') as easting,
+                pc_get(newpt, 'y') as northing,
+                pc_get(newpt, 'z') as altitude,
+                pc_get(newpt, 'm_roll') as roll,
+                pc_get(newpt, 'm_pitch') as pitch,
+                pc_get(newpt, 'm_plateformHeading')
+                    - pc_get(newpt, 'm_wanderAngle') as heading
+            from posdatasource pds
+            join %(project)s.route r on pds.id = r.posdatasource
+            join images i on i.etime <@ tstzrange(r.start_time, r.end_time),
+            pc_interpolate(r.points, 'm_time', i.epoch) as newpt
+            """,
+            ({'project': AsIs(project_name),
+              'project_id': project_id,
+              'session': session_id})
         )
 
 
@@ -48,7 +86,7 @@ class Images(Resource):
 })
 class SensorsSession(Resource):
 
-    @nsitowns.response(404, 'Session not found')
+    @nsitowns.response(500, 'parameter required : platform_config')
     def get(self, session_id):
         '''List all camera calibrations for a given session'''
         if 'platform_config' not in request.args:
