@@ -1,68 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pytest
-
-from api_li3ds import create_app
-
-
-@pytest.fixture
-def app():
-    app = create_app()
-    return app
+from flask import url_for
 
 
 def test_get_projects(client):
-    resp = client.get('/projects')
+    resp = client.get(url_for('projects'))
     assert resp.content_type == 'application/json'
     assert resp.status_code == 200
-    assert 'name' in resp.json[0]
-    assert 'timezone' in resp.json[0]
-    assert 'extent' in resp.json[0]
 
 
 def test_get_sessions(client):
-    resp = client.get('/sessions')
+    resp = client.get(url_for('sessions'))
     assert resp.content_type == 'application/json'
     assert resp.status_code == 200
 
 
 def test_get_platforms(client):
-    resp = client.get('/platforms')
+    resp = client.get(url_for('platforms'))
     assert resp.content_type == 'application/json'
     assert resp.status_code == 200
 
 
 def test_get_sensor_types(client):
-    resp = client.get('/sensor_types')
+    resp = client.get(url_for('sensor_types'))
     assert resp.content_type == 'application/json'
     assert resp.status_code == 200
 
 
 def test_get_sensors(client):
-    resp = client.get('/sensors')
+    resp = client.get(url_for('sensors'))
     assert resp.content_type == 'application/json'
     assert resp.status_code == 200
 
 
 def test_get_referentials(client):
-    resp = client.get('/referentials')
+    resp = client.get(url_for('referentials'))
     assert resp.content_type == 'application/json'
     assert resp.status_code == 200
 
 
 def test_get_transfos(client):
-    resp = client.get('/transfos')
+    resp = client.get(url_for('transfos'))
     assert resp.content_type == 'application/json'
     assert resp.status_code == 200
-
-
-def test_get_images(client):
-    resp = client.get('/sessions/1/images')
-    assert resp.content_type == 'application/json'
-    assert resp.status_code == 200
-
-
-def test_get_images_nosession(client):
-    resp = client.get('/sessions/999999999/images')
-    assert resp.content_type == 'application/json'
-    assert resp.status_code == 404
