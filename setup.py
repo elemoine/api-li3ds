@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 requirements = (
     'flask==0.11.1',
-    'flask-restplus==0.9.2',
+    'flask-restplus==0.10.0',
     'psycopg2==2.6.2',
     'pyyaml',
     'graphviz>=0.5.1'
@@ -65,6 +65,7 @@ setup(
     ],
     packages=find_packages(),
     install_requires=requirements,
+    include_package_data=True,
     extras_require={
         'dev': dev_requirements,
         'prod': prod_requirements,
