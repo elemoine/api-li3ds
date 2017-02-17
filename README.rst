@@ -4,31 +4,23 @@ LI3DS API
 Api for accessing metadata of a li3ds datastore.
 
 1. Create your virtualenv
-2. Install dependencies:
+2. Install dependencies (dev)::
 
-  - dev environnement :
+    pip install -e .[dev,doc]
 
-    .. code-block::
+3. Install dependencies (prod)::
 
-        pip install -e .[dev,doc]
+    pip install .[prod]
 
-  - prod environnement:
+4. (dev) Duplicate the conf/api_li3ds.sample.yml file to conf/api_li3ds.yml and adapt parameters
 
-    .. code-block::
+5. (dev) Launch the application using:
 
-        pip install .[prod]
+.. code-block::
 
+    python api_li3ds/wsgi.py
 
-3. (dev) Duplicate the conf/api_li3ds.sample.yml file to conf/api_li3ds.yml and adapt parameters
-
-4. (dev) Launch the application using:
-
-  .. code-block::
-
-      python api_li3ds/wsgi.py
-
-5. (dev) Go to https://localhost:5000 and start to play with the API
-
+6. (dev) Go to https://localhost:5000 and start to play with the API
 
 .. image:: https://raw.githubusercontent.com/LI3DS/api-li3ds/master/screen-api.png
     :align: center
