@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import make_response
+from flask import url_for
 from flask_restplus import fields
 from graphviz import Digraph
 
@@ -40,6 +41,74 @@ platform_config = nspfm.inherit(
     {
         'id': fields.Integer,
     })
+
+
+def platform_config_dot(id):
+
+    config = Database.query("""
+        select * from li3ds.platform_config where id = %s limit 1
+    """, (id, ))[0]
+
+    edges = Database.query(
+        """
+        select t.id, t.source, t.target, t.transfo_type, tf.sc, tft.func_name
+        from (
+            select distinct
+                unnest(tt.transfos) as tid, sensor_connections as sc
+            from li3ds.transfo_tree tt where tt.id = ANY(%s)
+        ) as tf
+        join li3ds.transfo t on t.id = tf.tid
+        join li3ds.transfo_type tft on tft.id = t.transfo_type
+        """, (list(config.transfo_trees), )
+    )
+    urefs = set()
+    for edge in edges:
+        urefs.add(edge.source)
+        urefs.add(edge.target)
+
+    nodes = Database.query("""
+        select distinct id, name, root, sensor
+        from li3ds.referential where ARRAY[id] <@ %s
+    """, (list(urefs), ))
+
+    sensors = Database.query("""
+        select distinct id, short_name as name
+        from li3ds.sensor where ARRAY[id] <@ %s
+    """, (list(urefs), ))
+
+    url = url_for('platform_config_dot',id=id,_external=True)
+    dot = Digraph(name="config_{}".format(id),comment=url)
+    dot.graph_attr.update({
+        'label': "Platform {} : {} ({})".format(config.platform, config.name, config.id),
+        'overlap': 'scalexy'
+    })
+
+    subgraphs = {}
+
+    for sensor in sensors:
+        subgraphs[sensor.id] = Digraph(name="cluster_{}".format(sensor.id))
+        subgraphs[sensor.id].graph_attr.update({
+            'label': "{} ({})".format(sensor.name, sensor.id)
+        })
+
+    for node in nodes:
+        color = 'red' if node.root else 'black'
+        subgraphs[node.sensor].node(str(node.id), '{}\n({})'.format(node.name, node.id), color=color)
+
+    for sensor in sensors:
+        dot.subgraph(subgraphs[sensor.id])
+
+    for edge in edges:
+        # highlight sensor connections in blue
+        color = 'blue' if edge.sc else 'black'
+        dot.edge(
+            str(edge.source),
+            str(edge.target),
+            label='{}\n({})'.format(edge.func_name, edge.id),
+            color=color)
+
+    dot.engine = 'dot'
+    return dot
 
 
 @nspfm.route('/', endpoint='platforms')
@@ -131,6 +200,20 @@ class OnePlatformConfig(Resource):
         return '', 410
 
 
+
+@nspfm.route('/configs/<int:id>/dot/', endpoint='platform_config_dot')
+@nspfm.param('id', 'The platform config identifier')
+class PlatformConfigDot(Resource):
+
+    def get(self, id):
+        '''Get a preview for this platform configuration as dot
+
+        Nodes are referentials and edges are tranformations between referentials.
+        Blue arrows represents connections between sensors (or sensor groups).
+        Red nodes are root referentials
+        '''
+        return make_response(platform_config_dot(id).source)
+
 @nspfm.route('/configs/<int:id>/preview/', endpoint='platform_config_preview')
 @nspfm.param('id', 'The platform config identifier')
 class PlatformConfigPreview(Resource):
@@ -142,53 +225,7 @@ class PlatformConfigPreview(Resource):
         Blue arrows represents connections between sensors (or sensor groups).
         Red nodes are root referentials
         '''
-        edges = Database.query(
-            """
-            with tmp as (
-                select
-                    unnest(tt.transfos) as tid, sensor_connections as sc
-                from li3ds.platform_config pf
-                join li3ds.transfo_tree tt on tt.id = ANY(pf.transfo_trees)
-                where pf.id = %s
-            ) select distinct t.id, t.source, t.target, transfo_type, p.sc
-            from tmp p
-            join li3ds.transfo t on t.id = p.tid
-            """, (id, )
-        )
-        urefs = set()
-        for edge in edges:
-            urefs.add(edge.source)
-            urefs.add(edge.target)
-
-        nodes = Database.query("""
-            select distinct id, name, root
-            from li3ds.referential where ARRAY[id] <@ %s
-        """, (list(urefs), ))
-
-        dot = Digraph(comment='Transformations')
-
-        for node in nodes:
-            if node.root:
-                dot.node(str(node.id), '{}\n({})'.format(node.name, node.id), color='red')
-                continue
-            dot.node(str(node.id), '{}\n({})'.format(node.name, node.id))
-
-        for edge in edges:
-            if edge.sc:
-                # highlight sensor connections in blue
-                dot.edge(
-                    str(edge.source),
-                    str(edge.target),
-                    label='{}'.format(edge.id),
-                    color='blue')
-                continue
-            dot.edge(
-                str(edge.source),
-                str(edge.target),
-                label='{}'.format(edge.id))
-
-        dot.graph_attr = {'overlap': 'scalexy'}
-        dot.engine = 'dot'
+        dot = platform_config_dot(id)
         data = dot.pipe("png")
 
         response = make_response(data)
