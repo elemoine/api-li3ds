@@ -105,7 +105,7 @@ class PlatformConfigs(Resource):
         '''Create a new platform configuration'''
         return Database.query_asdict(
             "insert into li3ds.platform_config (name, owner, platform, transfo_trees) "
-            "values (%(name)s, %(owner)s, {}, %(transfo_trees)s) "
+            "values (%(name)s, %(owner)s, %(platform)s, %(transfo_trees)s) "
             "returning *",
             api.payload
         ), 201
