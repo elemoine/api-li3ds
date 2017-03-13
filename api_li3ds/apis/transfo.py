@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-
 from flask_restplus import fields
 
 from api_li3ds.app import api, Resource
@@ -17,8 +15,8 @@ transfo_model_post = nstf.model(
         'description': fields.String,
         'parameters': fields.Raw,
         'tdate': fields.DateTime(dt_format='iso8601'),
-        'validity_start': fields.DateTime(dt_format='iso8601', default=datetime.min),
-        'validity_end': fields.DateTime(dt_format='iso8601', default=datetime.max),
+        'validity_start': fields.DateTime(dt_format='iso8601', default='0001-01-01T00:00:00+00'),
+        'validity_end': fields.DateTime(dt_format='iso8601', default='9999-12-31T23:59:59+01'),
     })
 
 transfo_model = nstf.inherit(
