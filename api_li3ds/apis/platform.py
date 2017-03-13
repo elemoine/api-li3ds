@@ -51,7 +51,7 @@ def platform_config_dot(id):
 
     edges = Database.query(
         """
-        select t.id, t.source, t.target, t.transfo_type, tf.sc, tft.func_name
+        select t.id, t.source, t.target, t.transfo_type, tf.sc, tft.name
         from (
             select distinct
                 unnest(tt.transfos) as tid, sensor_connections as sc
@@ -72,7 +72,7 @@ def platform_config_dot(id):
     """, (list(urefs), ))
 
     sensors = Database.query("""
-        select distinct id, short_name as name
+        select distinct id, name
         from li3ds.sensor where ARRAY[id] <@ %s
     """, (list(urefs), ))
 
@@ -104,7 +104,7 @@ def platform_config_dot(id):
         dot.edge(
             str(edge.source),
             str(edge.target),
-            label='{}\n({})'.format(edge.func_name, edge.id),
+            label='{}\n({})'.format(edge.name, edge.id),
             color=color)
 
     dot.engine = 'dot'
