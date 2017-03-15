@@ -20,8 +20,8 @@ def get_none():
 
 
 def defaultpayload(payload):
-    """Use a default dict to add a None nalue
-    and avoid a KeyError when payload used
+    """Use a default dict to add a None value
+    and avoid a KeyError on sql request interpolation
     """
     newpayload = defaultdict(get_none)
     newpayload.update(payload)
