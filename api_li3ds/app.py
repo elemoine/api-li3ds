@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
+from collections import defaultdict
+
 from flask import request, current_app
 from flask_restplus import Api, Resource as OrigResource
 
@@ -11,6 +13,19 @@ HEADER_API_KEY = 'X-API-KEY'
 class Resource(OrigResource):
     # add a postgresql exception decorator for all api methods
     method_decorators = [pgexceptions]
+
+
+def get_none():
+    pass
+
+
+def defaultpayload(payload):
+    """Use a default dict to add a None nalue
+    and avoid a KeyError when payload used
+    """
+    newpayload = defaultdict(get_none)
+    newpayload.update(payload)
+    return newpayload
 
 
 class Li3dsApi(Api):

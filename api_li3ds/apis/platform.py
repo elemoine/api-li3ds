@@ -3,7 +3,7 @@ from flask import make_response
 from flask_restplus import fields
 from graphviz import Digraph
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 from .sensor import sensor_model
 
@@ -59,7 +59,7 @@ class Platforms(Resource):
             "insert into li3ds.platform (name, description, start_time, end_time) "
             "values (%(name)s, %(description)s, %(start_time)s, %(end_time)s) "
             "returning *",
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 
@@ -106,7 +106,7 @@ class PlatformConfigs(Resource):
             "insert into li3ds.platform_config (name, owner, platform, transfo_trees) "
             "values (%(name)s, %(owner)s, {}, %(transfo_trees)s) "
             "returning *".format(id),
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 

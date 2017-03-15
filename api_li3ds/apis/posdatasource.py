@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 
 
@@ -50,7 +50,7 @@ class PosDatasources(Resource):
             "insert into li3ds.posdatasource (referential, session, uri) "
             "values (%(referential)s, %(session)s, %(uri)s) "
             "returning *",
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 
@@ -108,7 +108,7 @@ class PosProcessing(Resource):
             "insert into li3ds.posprocessing (launched, tool, description, source, target) "
             "values (%(launched)s, %(tool)s, %(description)s, %(source)s, {}) "
             "returning *".format(id),
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 
