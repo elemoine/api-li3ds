@@ -15,15 +15,11 @@ class Resource(OrigResource):
     method_decorators = [pgexceptions]
 
 
-def get_none():
-    pass
-
-
 def defaultpayload(payload):
     """Use a default dict to add a None value
     and avoid a KeyError on sql request interpolation
     """
-    newpayload = defaultdict(get_none)
+    newpayload = defaultdict(lambda: None)
     newpayload.update(payload)
     return newpayload
 
