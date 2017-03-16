@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 
 
@@ -51,7 +51,7 @@ class Sensors(Resource):
                     %(description)s, %(specifications)s, %(type)s)
             returning *
             """,
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 
 nstf = api.namespace('transfos', description='transformations related operations')
+
 
 transfo_model_post = nstf.model(
     'Transformation Model Post',
@@ -15,8 +16,8 @@ transfo_model_post = nstf.model(
         'description': fields.String,
         'parameters': fields.Raw,
         'tdate': fields.DateTime(dt_format='iso8601'),
-        'validity_start': fields.DateTime(dt_format='iso8601', default='0001-01-01T00:00:00+00'),
-        'validity_end': fields.DateTime(dt_format='iso8601', default='9999-12-31T23:59:59+01'),
+        'validity_start': fields.DateTime(dt_format='iso8601'),
+        'validity_end': fields.DateTime(dt_format='iso8601'),
     })
 
 transfo_model = nstf.inherit(
@@ -64,8 +65,7 @@ class Transfo(Resource):
             values (%(source)s, %(target)s, %(transfo_type)s, %(description)s,
                     %(parameters)s, %(tdate)s, %(validity_start)s, %(validity_end)s)
             returning *
-            """,
-            api.payload
+            """, defaultpayload(api.payload)
         ), 201
 
 
@@ -113,7 +113,7 @@ class TransfoType(Resource):
             values (%(func_name)s,%(description)s,%(func_signature)s)
             returning *
             """,
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 

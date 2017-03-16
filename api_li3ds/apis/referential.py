@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 
 nsrf = api.namespace('referentials', description='referentials related operations')
@@ -57,7 +57,7 @@ class Referential(Resource):
             "insert into li3ds.referential (name, description, srid, root, sensor) "
             "values (%(name)s, %(description)s, %(srid)s, %(root)s, %(sensor)s) "
             "returning *",
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 

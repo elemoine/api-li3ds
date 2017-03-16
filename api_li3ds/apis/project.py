@@ -2,7 +2,7 @@
 from flask_restplus import fields
 
 from api_li3ds.database import Database
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from .session import session_model
 
 
@@ -49,7 +49,7 @@ class Projects(Resource):
         '''
         return Database.query_asdict(
             "select li3ds.create_project(%(name)s, %(timezone)s, %(extent)s) as id",
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 

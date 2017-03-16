@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 from .datasource import datasource_model
 from .posdatasource import posdatasource_model
@@ -40,7 +40,7 @@ class AllSessions(Resource):
             "insert into li3ds.session (name, start_time, end_time, project, platform) "
             "values (%(name)s, %(start_time)s, %(end_time)s, %(project)s, %(platform)s) "
             "returning *",
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 

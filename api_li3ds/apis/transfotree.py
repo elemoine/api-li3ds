@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 
 nstft = api.namespace('transfotrees', description='transformation trees related operations')
@@ -45,7 +45,7 @@ class TransfoTree(Resource):
             values (%(name)s,%(isdefault)s,%(sensor_connections)s,%(owner)s,%(transfos)s)
             returning *
             """,
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 
