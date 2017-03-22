@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 
 nstf = api.namespace('transfos', description='transformations related operations')
 
+
 transfo_model_post = nstf.model(
     'Transformation Model Post',
     {
+        'name': fields.String,
         'source': fields.Integer,
         'target': fields.Integer,
         'transfo_type': fields.Integer,
         'description': fields.String,
         'parameters': fields.Raw,
         'tdate': fields.DateTime(dt_format='iso8601'),
-        'validity_start': fields.DateTime(dt_format='iso8601', default='0001-01-01T00:00:00+00'),
-        'validity_end': fields.DateTime(dt_format='iso8601', default='9999-12-31T23:59:59+01'),
+        'validity_start': fields.DateTime(dt_format='iso8601'),
+        'validity_end': fields.DateTime(dt_format='iso8601'),
     })
 
 transfo_model = nstf.inherit(
@@ -30,7 +32,7 @@ transfo_model = nstf.inherit(
 transfotype_model_post = nstf.model(
     'Transformation type Model Post',
     {
-        'func_name': fields.String,
+        'name': fields.String,
         'description': fields.String,
         'func_signature': fields.List(fields.String),
     })
@@ -59,13 +61,12 @@ class Transfo(Resource):
         '''Create a transformation between referentials'''
         return Database.query_asdict(
             """
-            insert into li3ds.transfo (source, target, transfo_type, description,
+            insert into li3ds.transfo (name, source, target, transfo_type, description,
                                        parameters, tdate, validity_start, validity_end)
-            values (%(source)s, %(target)s, %(transfo_type)s, %(description)s,
+            values (%(name)s, %(source)s, %(target)s, %(transfo_type)s, %(description)s,
                     %(parameters)s, %(tdate)s, %(validity_start)s, %(validity_end)s)
             returning *
-            """,
-            api.payload
+            """, defaultpayload(api.payload)
         ), 201
 
 
@@ -109,11 +110,11 @@ class TransfoType(Resource):
         '''Create a transformation type'''
         return Database.query_asdict(
             """
-            insert into li3ds.transfo_type (func_name, description, func_signature)
-            values (%(func_name)s,%(description)s,%(func_signature)s)
+            insert into li3ds.transfo_type (name, description, func_signature)
+            values (%(name)s,%(description)s,%(func_signature)s)
             returning *
             """,
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 

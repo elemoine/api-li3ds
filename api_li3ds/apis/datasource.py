@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask_restplus import fields
 
-from api_li3ds.app import api, Resource
+from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 
 
@@ -49,7 +49,7 @@ class Datasources(Resource):
             "insert into li3ds.datasource (referential, session, uri) "
             "values (%(referential)s, %(session)s, %(uri)s) "
             "returning *",
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 
@@ -107,7 +107,7 @@ class Processing(Resource):
             "insert into li3ds.processing (launched, tool, description, source, target) "
             "values (%(launched)s, %(tool)s, %(description)s, %(source)s, {}) "
             "returning *".format(id),
-            api.payload
+            defaultpayload(api.payload)
         ), 201
 
 
