@@ -10,6 +10,7 @@ nstf = api.namespace('transfos', description='transformations related operations
 transfo_model_post = nstf.model(
     'Transformation Model Post',
     {
+        'name': fields.String,
         'source': fields.Integer,
         'target': fields.Integer,
         'transfo_type': fields.Integer,
@@ -31,7 +32,7 @@ transfo_model = nstf.inherit(
 transfotype_model_post = nstf.model(
     'Transformation type Model Post',
     {
-        'func_name': fields.String,
+        'name': fields.String,
         'description': fields.String,
         'func_signature': fields.List(fields.String),
     })
@@ -60,9 +61,9 @@ class Transfo(Resource):
         '''Create a transformation between referentials'''
         return Database.query_asdict(
             """
-            insert into li3ds.transfo (source, target, transfo_type, description,
+            insert into li3ds.transfo (name, source, target, transfo_type, description,
                                        parameters, tdate, validity_start, validity_end)
-            values (%(source)s, %(target)s, %(transfo_type)s, %(description)s,
+            values (%(name)s, %(source)s, %(target)s, %(transfo_type)s, %(description)s,
                     %(parameters)s, %(tdate)s, %(validity_start)s, %(validity_end)s)
             returning *
             """, defaultpayload(api.payload)
@@ -109,8 +110,8 @@ class TransfoType(Resource):
         '''Create a transformation type'''
         return Database.query_asdict(
             """
-            insert into li3ds.transfo_type (func_name, description, func_signature)
-            values (%(func_name)s,%(description)s,%(func_signature)s)
+            insert into li3ds.transfo_type (name, description, func_signature)
+            values (%(name)s,%(description)s,%(func_signature)s)
             returning *
             """,
             defaultpayload(api.payload)

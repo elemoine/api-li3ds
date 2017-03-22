@@ -11,8 +11,8 @@ nssensor = api.namespace('sensors', description='sensors related operations')
 sensor_model_post = nssensor.model(
     'Sensor Model Post',
     {
+        'name': fields.String,
         'serial_number': fields.String,
-        'short_name': fields.String,
         'brand': fields.String,
         'model': fields.String,
         'description': fields.String,
@@ -45,10 +45,10 @@ class Sensors(Resource):
         '''Create a sensor'''
         return Database.query_asdict(
             """
-            insert into li3ds.sensor (serial_number, short_name, brand,
+            insert into li3ds.sensor (name, serial_number, brand,
                                       model, description, specifications, type)
-            values (%(serial_number)s, %(short_name)s, %(brand)s, %(model)s,
-                    %(description)s, %(specifications)s, %(type)s)
+            values (%(name)s, %(serial_number)s, %(brand)s,
+                    %(model)s, %(description)s, %(specifications)s, %(type)s)
             returning *
             """,
             defaultpayload(api.payload)
