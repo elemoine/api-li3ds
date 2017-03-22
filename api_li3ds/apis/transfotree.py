@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from flask import make_response
 from flask_restplus import fields
 
 from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
+from api_li3ds.dot import Dot
 
 nstft = api.namespace('transfotrees', description='transformation trees related operations')
 
@@ -71,3 +73,43 @@ class OneTransfoTree(Resource):
         if not res:
             nstft.abort(404, 'Transformation tree not found')
         return '', 410
+
+@nstft.route('/<int:id>/dot/', endpoint='transfotree_dot')
+@nstft.param('id', 'The platform config identifier')
+class TransfoTreeDot(Resource):
+
+    def get(self, id):
+        '''Get a preview for this transfo tree as dot
+
+        Nodes are referentials and edges are tranformations between referentials.
+        Blue arrows represents connections between sensors (or sensor groups).
+        Red nodes are root referentials
+        '''
+        dot = Dot.transfo_tree(id)
+        if not dot:
+            nstft.abort(404, 'Transformation tree not found')
+
+        response = make_response(dot.source)
+        response.headers['content-type'] = 'text/plain'
+        response.mimetype = 'text/plain'
+        return response
+
+@nstft.route('/<int:id>/preview/', endpoint='transfotree_preview')
+@nstft.param('id', 'The platform config identifier')
+class TransfoTreePreview(Resource):
+
+    def get(self, id):
+        '''Get a preview for this transfo tree as png
+
+        Nodes are referentials and edges are tranformations between referentials.
+        Blue arrows represents connections between sensors (or sensor groups).
+        Red nodes are root referentials
+        '''
+        dot = Dot.transfo_tree(id)
+        if not dot:
+            nstft.abort(404, 'Transformation tree not found')
+
+        response = make_response(dot.pipe("png"))
+        response.headers['content-type'] = 'image/png'
+        response.mimetype = 'image/png'
+        return response
