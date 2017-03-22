@@ -4,7 +4,7 @@ from flask_restplus import fields
 
 from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
-from api_li3ds.dot import Dot
+from api_li3ds import dot
 from .sensor import sensor_model
 
 nspfm = api.namespace('platforms', description='platforms related operations')
@@ -141,11 +141,11 @@ class PlatformConfigDot(Resource):
         Blue arrows represents connections between sensors (or sensor groups).
         Red nodes are root referentials
         '''
-        dot = Dot.platform_config(id)
-        if not dot:
+        graph = dot.platform_config(id)
+        if not graph:
             nspfm.abort(404, 'Platform configuration not found')
 
-        response = make_response(dot.source)
+        response = make_response(graph.source)
         response.headers['content-type'] = 'text/plain'
         response.mimetype = 'text/plain'
         return response
@@ -162,11 +162,11 @@ class PlatformConfigPreview(Resource):
         Blue arrows represents connections between sensors (or sensor groups).
         Red nodes are root referentials
         '''
-        dot = Dot.platform_config(id)
-        if not dot:
+        graph = dot.platform_config(id)
+        if not graph:
             nspfm.abort(404, 'Platform configuration not found')
 
-        response = make_response(dot.pipe("png"))
+        response = make_response(graph.pipe("png"))
         response.headers['content-type'] = 'image/png'
         response.mimetype = 'image/png'
         return response

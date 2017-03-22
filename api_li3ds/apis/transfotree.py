@@ -4,7 +4,7 @@ from flask_restplus import fields
 
 from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
-from api_li3ds.dot import Dot
+from api_li3ds import dot
 
 nstft = api.namespace('transfotrees', description='transformation trees related operations')
 
@@ -86,11 +86,11 @@ class TransfoTreeDot(Resource):
         Blue arrows represents connections between sensors (or sensor groups).
         Red nodes are root referentials
         '''
-        dot = Dot.transfo_tree(id)
-        if not dot:
+        graph = dot.transfo_tree(id)
+        if not graph:
             nstft.abort(404, 'Transformation tree not found')
 
-        response = make_response(dot.source)
+        response = make_response(graph.source)
         response.headers['content-type'] = 'text/plain'
         response.mimetype = 'text/plain'
         return response
@@ -107,11 +107,11 @@ class TransfoTreePreview(Resource):
         Blue arrows represents connections between sensors (or sensor groups).
         Red nodes are root referentials
         '''
-        dot = Dot.transfo_tree(id)
-        if not dot:
+        graph = dot.transfo_tree(id)
+        if not graph:
             nstft.abort(404, 'Transformation tree not found')
 
-        response = make_response(dot.pipe("png"))
+        response = make_response(graph.pipe("png"))
         response.headers['content-type'] = 'image/png'
         response.mimetype = 'image/png'
         return response
