@@ -25,7 +25,7 @@ class Dot():
                 subgraphs[node.sensor] = Digraph(name=name, comment=url)
                 subgraphs[node.sensor].graph_attr.update({'label': label})
             color = 'red' if node.root else 'black'
-            label='{name}\\n({id})'.format_map(node._asdict())
+            label = '{name}\\n({id})'.format_map(node._asdict())
             subgraphs[node.sensor].node(str(node.id), label=label, color=color)
 
         for sensor in subgraphs:
@@ -34,8 +34,8 @@ class Dot():
         for edge in edges:
             # highlight sensor connections in blue
             color = 'blue' if edge.sc else 'black'
-            label='{tname}\\n({id})'.format_map(edge._asdict())
-            dot.edge(str(edge.source),str(edge.target),label=label,color=color)
+            label = '{tname}\\n({id})'.format_map(edge._asdict())
+            dot.edge(str(edge.source), str(edge.target), label=label, color=color)
 
         dot.engine = 'dot'
         return dot
@@ -82,7 +82,7 @@ class Dot():
             return None
         config = configs[0]
 
-        name="cluster_config_{}".format(id)
+        name = "cluster_config_{}".format(id)
         url = url_for('platform_config', id=id, _external=True)
         label = "Platform: {pname} ({pid})\\nConfiguration: {name} ({id})".format_map(config)
         print (config)

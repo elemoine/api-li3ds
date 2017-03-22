@@ -74,6 +74,7 @@ class OneTransfoTree(Resource):
             nstft.abort(404, 'Transformation tree not found')
         return '', 410
 
+
 @nstft.route('/<int:id>/dot/', endpoint='transfotree_dot')
 @nstft.param('id', 'The platform config identifier')
 class TransfoTreeDot(Resource):
@@ -93,6 +94,7 @@ class TransfoTreeDot(Resource):
         response.headers['content-type'] = 'text/plain'
         response.mimetype = 'text/plain'
         return response
+
 
 @nstft.route('/<int:id>/preview/', endpoint='transfotree_preview')
 @nstft.param('id', 'The platform config identifier')

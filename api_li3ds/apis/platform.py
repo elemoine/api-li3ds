@@ -130,7 +130,6 @@ class OnePlatformConfig(Resource):
         return '', 410
 
 
-
 @nspfm.route('/configs/<int:id>/dot/', endpoint='platform_config_dot')
 @nspfm.param('id', 'The platform config identifier')
 class PlatformConfigDot(Resource):
@@ -150,6 +149,7 @@ class PlatformConfigDot(Resource):
         response.headers['content-type'] = 'text/plain'
         response.mimetype = 'text/plain'
         return response
+
 
 @nspfm.route('/configs/<int:id>/preview/', endpoint='platform_config_preview')
 @nspfm.param('id', 'The platform config identifier')
