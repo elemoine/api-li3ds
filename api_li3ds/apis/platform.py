@@ -44,9 +44,12 @@ platform_config = nspfm.inherit(
 
 def platform_config_dot(id):
 
-    config = Database.query("""
-        select * from li3ds.platform_config where id = %s limit 1
-    """, (id, ))[0]
+    config = Database.query(
+        "select * from li3ds.platform_config where id = %s", (id,)
+    )
+    if not config:
+        return nspfm.abort(404, 'Platform configuration not found')
+    config = config[0]
 
     edges = Database.query(
         """
@@ -66,17 +69,14 @@ def platform_config_dot(id):
         urefs.add(edge.target)
 
     nodes = Database.query("""
-        select distinct id, name, root, sensor
-        from li3ds.referential where ARRAY[id] <@ %s
+        select distinct r.id, r.name, r.root, r.sensor, s.name as sensor_name
+        from li3ds.referential r
+        join li3ds.sensor s on r.sensor = s.id
+        where ARRAY[r.id] <@ %s
     """, (list(urefs), ))
 
-    sensors = Database.query("""
-        select distinct id, name
-        from li3ds.sensor where ARRAY[id] <@ %s
-    """, (list(urefs), ))
-
-    url = url_for('platform_config_dot',id=id,_external=True)
-    dot = Digraph(name="config_{}".format(id),comment=url)
+    url = url_for('platform_config_dot', id=id, _external=True)
+    dot = Digraph(name="config_{}".format(id), comment=url)
     dot.graph_attr.update({
         'label': "Platform {} : {} ({})".format(config.platform, config.name, config.id),
         'overlap': 'scalexy'
@@ -84,18 +84,15 @@ def platform_config_dot(id):
 
     subgraphs = {}
 
-    for sensor in sensors:
-        subgraphs[sensor.id] = Digraph(name="cluster_{}".format(sensor.id))
-        subgraphs[sensor.id].graph_attr.update({
-            'label': "{} ({})".format(sensor.name, sensor.id)
-        })
-
     for node in nodes:
+        if node.sensor not in subgraphs:
+            subgraphs[node.sensor] = Digraph(name="cluster_{}".format(node.sensor))
+            subgraphs[node.sensor].graph_attr.update({
+                'label': "{} ({})".format(node.sensor_name, node.sensor)
+            })
         color = 'red' if node.root else 'black'
         subgraphs[node.sensor].node(str(node.id), '{}\n({})'.format(node.name, node.id), color=color)
-
-    for sensor in sensors:
-        dot.subgraph(subgraphs[sensor.id])
+        dot.subgraph(subgraphs[node.sensor])
 
     for edge in edges:
         # highlight sensor connections in blue
@@ -199,7 +196,6 @@ class OnePlatformConfig(Resource):
         return '', 410
 
 
-
 @nspfm.route('/configs/<int:id>/dot/', endpoint='platform_config_dot')
 @nspfm.param('id', 'The platform config identifier')
 class PlatformConfigDot(Resource):
@@ -211,7 +207,11 @@ class PlatformConfigDot(Resource):
         Blue arrows represents connections between sensors (or sensor groups).
         Red nodes are root referentials
         '''
-        return make_response(platform_config_dot(id).source)
+        response = make_response(platform_config_dot(id).source)
+        response.headers['content-type'] = 'text/plain'
+        response.mimetype = 'text/plain'
+        return response
+
 
 @nspfm.route('/configs/<int:id>/preview/', endpoint='platform_config_preview')
 @nspfm.param('id', 'The platform config identifier')
