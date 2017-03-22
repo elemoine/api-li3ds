@@ -31,7 +31,6 @@ platform_config_post = nspfm.model(
     {
         'name': fields.String,
         'owner': fields.String,
-        'platform': fields.Integer,
         'transfo_trees': fields.List(fields.Integer)
     })
 
@@ -174,8 +173,8 @@ class PlatformConfigs(Resource):
         '''Create a new platform configuration'''
         return Database.query_asdict(
             "insert into li3ds.platform_config (name, owner, platform, transfo_trees) "
-            "values (%(name)s, %(owner)s, %(platform)s, %(transfo_trees)s) "
-            "returning *",
+            "values (%(name)s, %(owner)s, {}, %(transfo_trees)s) "
+            "returning *".format(id),
             api.payload
         ), 201
 
