@@ -3,6 +3,7 @@ from graphviz import Digraph
 
 from api_li3ds.database import Database
 
+
 class Dot():
     '''
     Graphviz wrapper to export li3ds database elements
@@ -85,7 +86,6 @@ class Dot():
         name = "cluster_config_{}".format(id)
         url = url_for('platform_config', id=id, _external=True)
         label = "Platform: {pname} ({pid})\\nConfiguration: {name} ({id})".format_map(config)
-        print (config)
         return Dot.transfo_trees(name, url, label, config['transfo_trees'])
 
     def transfo_tree(id):
