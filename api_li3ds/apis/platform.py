@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from flask import make_response
 from flask_restplus import fields
-from graphviz import Digraph
 
 from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
+from api_li3ds import dot
 from .sensor import sensor_model
 
 nspfm = api.namespace('platforms', description='platforms related operations')
@@ -130,6 +130,27 @@ class OnePlatformConfig(Resource):
         return '', 410
 
 
+@nspfm.route('/configs/<int:id>/dot/', endpoint='platform_config_dot')
+@nspfm.param('id', 'The platform config identifier')
+class PlatformConfigDot(Resource):
+
+    def get(self, id):
+        '''Get a preview for this platform configuration as dot
+
+        Nodes are referentials and edges are tranformations between referentials.
+        Blue arrows represents connections between sensors (or sensor groups).
+        Red nodes are root referentials
+        '''
+        graph = dot.platform_config(id)
+        if not graph:
+            nspfm.abort(404, 'Platform configuration not found')
+
+        response = make_response(graph.source)
+        response.headers['content-type'] = 'text/plain'
+        response.mimetype = 'text/plain'
+        return response
+
+
 @nspfm.route('/configs/<int:id>/preview/', endpoint='platform_config_preview')
 @nspfm.param('id', 'The platform config identifier')
 class PlatformConfigPreview(Resource):
@@ -141,56 +162,11 @@ class PlatformConfigPreview(Resource):
         Blue arrows represents connections between sensors (or sensor groups).
         Red nodes are root referentials
         '''
-        edges = Database.query(
-            """
-            with tmp as (
-                select
-                    unnest(tt.transfos) as tid, sensor_connections as sc
-                from li3ds.platform_config pf
-                join li3ds.transfo_tree tt on tt.id = ANY(pf.transfo_trees)
-                where pf.id = %s
-            ) select distinct t.id, t.source, t.target, transfo_type, p.sc
-            from tmp p
-            join li3ds.transfo t on t.id = p.tid
-            """, (id, )
-        )
-        urefs = set()
-        for edge in edges:
-            urefs.add(edge.source)
-            urefs.add(edge.target)
+        graph = dot.platform_config(id)
+        if not graph:
+            nspfm.abort(404, 'Platform configuration not found')
 
-        nodes = Database.query("""
-            select distinct id, name, root
-            from li3ds.referential where ARRAY[id] <@ %s
-        """, (list(urefs), ))
-
-        dot = Digraph(comment='Transformations')
-
-        for node in nodes:
-            if node.root:
-                dot.node(str(node.id), '{}\n({})'.format(node.name, node.id), color='red')
-                continue
-            dot.node(str(node.id), '{}\n({})'.format(node.name, node.id))
-
-        for edge in edges:
-            if edge.sc:
-                # highlight sensor connections in blue
-                dot.edge(
-                    str(edge.source),
-                    str(edge.target),
-                    label='{}'.format(edge.id),
-                    color='blue')
-                continue
-            dot.edge(
-                str(edge.source),
-                str(edge.target),
-                label='{}'.format(edge.id))
-
-        dot.graph_attr = {'overlap': 'scalexy'}
-        dot.engine = 'dot'
-        data = dot.pipe("png")
-
-        response = make_response(data)
+        response = make_response(graph.pipe("png"))
         response.headers['content-type'] = 'image/png'
         response.mimetype = 'image/png'
         return response
