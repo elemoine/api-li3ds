@@ -49,13 +49,15 @@ class Images(Resource):
                 join li3ds.datasource ds on i.datasource = ds.id
                 join li3ds.referential rf on ds.referential = rf.id
                 where ds.session = %(session)s
-            ), posdatasource as (
-                -- get latest version of the route
-                select max(pds.id) as id, max(version)
-                from li3ds.project p
-                join li3ds.session s on s.project = p.id
-                join li3ds.posdatasource pds on pds.session = s.id
+            ), route as (
+                -- get latest route
+                select r.points as points
+                from %(project)s.route r
+                join li3ds.datasource ds on r.datasource = ds.id
+                join li3ds.session s on ds.session = s.id
+                join li3ds.project p on s.project = p.id
                 where p.id = %(project_id)s
+                order by ds.id desc limit 1
             )
             select
                 i.id,
@@ -69,8 +71,7 @@ class Images(Resource):
                 pc_get(newpt, 'm_pitch') as pitch,
                 pc_get(newpt, 'm_plateformHeading')
                     - pc_get(newpt, 'm_wanderAngle') as heading
-            from posdatasource pds
-            join %(project)s.route r on pds.id = r.posdatasource
+            from route r
             join images i on i.etime <@ tstzrange(r.start_time, r.end_time),
             pc_interpolate(r.points, 'm_time', i.epoch) as newpt
             """,
