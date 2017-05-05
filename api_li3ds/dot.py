@@ -20,12 +20,12 @@ def make_dot(name, url, label, nodes, edges):
         if node.sensor not in subgraphs:
             url = url_for('sensor', id=node.sensor, _external=True)
             name = "cluster_sensor_{}".format(node.sensor)
-            label = "Sensor {type}: {sname} ({sensor})".format_map(node._asdict())
+            label = "Sensor {type}: {sname} ({sensor})".format_map(
+                    node._asdict())
             subgraphs[node.sensor] = Digraph(name=name, comment=url)
             subgraphs[node.sensor].graph_attr.update({'label': label})
-        color = 'red' if node.root else 'black'
         label = '{name}\\n({id})'.format_map(node._asdict())
-        subgraphs[node.sensor].node(str(node.id), label=label, color=color)
+        subgraphs[node.sensor].node(str(node.id), label=label, color='black')
 
     for sensor in subgraphs:
         dot.subgraph(subgraphs[sensor])
@@ -61,7 +61,7 @@ def transfo_trees(name, url, label, ids):
         urefs.add(edge.target)
 
     nodes = Database.query("""
-        select distinct r.id, r.name, r.root, r.sensor, s.name as sname, s.type
+        select distinct r.id, r.name, r.sensor, s.name as sname, s.type
         from li3ds.referential r
         join li3ds.sensor s on r.sensor = s.id
         where ARRAY[r.id] <@ %s
