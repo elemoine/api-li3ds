@@ -109,7 +109,7 @@ class SensorsSession(Resource):
                 join li3ds.transfo tr on tr.id = trlist.tid
                 join li3ds.referential r on tr.source = r.id or tr.target = r.id
                 join li3ds.sensor s on s.id = r.sensor
-                where s.type = 'ins' and r.root
+                where s.type = 'ins'
             ), camera_transfo as (
                 -- get all camera first transformations
                 select tr.id as source, se.*
