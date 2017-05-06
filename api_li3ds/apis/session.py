@@ -4,7 +4,6 @@ from flask_restplus import fields
 from api_li3ds.app import api, Resource, defaultpayload
 from api_li3ds.database import Database
 from .datasource import datasource_model
-from .posdatasource import posdatasource_model
 
 nssession = api.namespace('sessions', description='sessions related operations')
 
@@ -88,18 +87,5 @@ class Datasources(Resource):
         return Database.query_asjson(
             """select d.* from li3ds.session s
             join li3ds.datasource d on d.session = s.id
-            where s.id = %s
-            """, (id,))
-
-
-@nssession.route('/<int:id>/posdatasources/', endpoint='session_posdatasources')
-class PosDatasources(Resource):
-
-    @nssession.marshal_with(posdatasource_model)
-    def get(self, id):
-        '''List session positional datasources'''
-        return Database.query_asjson(
-            """select d.* from li3ds.session s
-            join li3ds.posdatasource d on d.session = s.id
             where s.id = %s
             """, (id,))
