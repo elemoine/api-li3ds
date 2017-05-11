@@ -12,7 +12,6 @@ transfotree_model_post = nstft.model(
     'Transformation tree Model Post',
     {
         'name': fields.String,
-        'isdefault': fields.Boolean,
         'sensor_connections': fields.Boolean,
         'owner': fields.String,
         'transfos': fields.List(fields.Integer),
@@ -42,9 +41,9 @@ class TransfoTree(Resource):
         '''Create a transformation between referentials'''
         return Database.query_asdict(
             """
-            insert into li3ds.transfo_tree (name, isdefault, sensor_connections,
+            insert into li3ds.transfo_tree (name, sensor_connections,
                                             owner, transfos)
-            values (%(name)s,%(isdefault)s,%(sensor_connections)s,%(owner)s,%(transfos)s)
+            values (%(name)s,%(sensor_connections)s,%(owner)s,%(transfos)s)
             returning *
             """,
             defaultpayload(api.payload)
