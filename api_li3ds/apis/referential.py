@@ -12,7 +12,6 @@ referential_model_post = nsrf.model(
         'name': fields.String,
         'description': fields.String,
         'srid': fields.Integer,
-        'root': fields.Boolean,
         'sensor': fields.Integer,
     })
 
@@ -54,8 +53,8 @@ class Referential(Resource):
     def post(self):
         '''Create a referential'''
         return Database.query_asdict(
-            "insert into li3ds.referential (name, description, srid, root, sensor) "
-            "values (%(name)s, %(description)s, %(srid)s, %(root)s, %(sensor)s) "
+            "insert into li3ds.referential (name, description, srid, sensor) "
+            "values (%(name)s, %(description)s, %(srid)s, %(sensor)s) "
             "returning *",
             defaultpayload(api.payload)
         ), 201

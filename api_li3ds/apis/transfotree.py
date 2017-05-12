@@ -84,7 +84,6 @@ class TransfoTreeDot(Resource):
 
         Nodes are referentials and edges are tranformations between referentials.
         Blue arrows represents connections between sensors (or sensor groups).
-        Red nodes are root referentials
         '''
         graph = dot.transfo_tree(id)
         if not graph:
@@ -105,7 +104,6 @@ class TransfoTreePreview(Resource):
 
         Nodes are referentials and edges are tranformations between referentials.
         Blue arrows represents connections between sensors (or sensor groups).
-        Red nodes are root referentials
         '''
         graph = dot.transfo_tree(id)
         if not graph:

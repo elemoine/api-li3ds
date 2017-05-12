@@ -139,7 +139,6 @@ class PlatformConfigDot(Resource):
 
         Nodes are referentials and edges are tranformations between referentials.
         Blue arrows represents connections between sensors (or sensor groups).
-        Red nodes are root referentials
         '''
         graph = dot.platform_config(id)
         if not graph:
@@ -160,7 +159,6 @@ class PlatformConfigPreview(Resource):
 
         Nodes are referentials and edges are tranformations between referentials.
         Blue arrows represents connections between sensors (or sensor groups).
-        Red nodes are root referentials
         '''
         graph = dot.platform_config(id)
         if not graph:
